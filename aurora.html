@@ -94,10 +94,13 @@ try {
   chaptersRoot.innerHTML = '';
   let first = '';
   if (!chapters.length) empty(chaptersRoot, 'لا توجد فصول مضافة بعد.');
-  for (const c of chapters) {
+  for (let i = 0; i < chapters.length; i++) {
+    const c = chapters[i];
+    const displayNumber = Number.isFinite(Number(c.number)) && Number(c.number) > 0 ? Number(c.number) : (i + 1);
+    const displayTitle = c.title || 'فصل';
     const a = document.createElement('a');
     a.href = 'chapter.html?id=' + encodeURIComponent(c.id);
-    a.innerHTML = `<button>${esc(c.title || 'فصل')}</button>`;
+    a.innerHTML = `<button>الفصل ${displayNumber}: ${esc(displayTitle)}</button>`;
     chaptersRoot.appendChild(a);
     if (!first) first = a.href;
   }

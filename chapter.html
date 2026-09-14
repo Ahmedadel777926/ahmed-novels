@@ -24,9 +24,13 @@ try {
   const snap = await getDoc(doc(db, 'chapters', id));
   if (!snap.exists()) throw new Error('missing');
   const c = snap.data();
-  document.title = c.title || 'الفصل';
-  document.getElementById('chapterTitle').textContent = c.title || '';
-  document.getElementById('heading').textContent = c.title || '';
+  const number = Number(c.number);
+  const chapterLabel = Number.isFinite(number) && number > 0
+    ? `الفصل ${number}: ${c.title || 'بدون عنوان'}`
+    : (c.title || 'الفصل');
+  document.title = chapterLabel;
+  document.getElementById('chapterTitle').textContent = chapterLabel;
+  document.getElementById('heading').textContent = chapterLabel;
   content.innerHTML = '';
   const paragraphs = String(c.content || '').split(/\n{2,}/);
   for (const text of paragraphs) {
