@@ -1,6 +1,6 @@
 import { initializeApp } from 'https://www.gstatic.com/firebasejs/10.12.5/firebase-app.js';
 import { getAuth, signInWithEmailAndPassword, onAuthStateChanged, signOut } from 'https://www.gstatic.com/firebasejs/10.12.5/firebase-auth.js';
-import { getFirestore, collection, addDoc, getDocs, getDoc, setDoc, updateDoc, deleteDoc, doc, query, where, orderBy, serverTimestamp } from 'https://www.gstatic.com/firebasejs/10.12.5/firebase-firestore.js';
+import { getFirestore, collection, addDoc, getDocs, updateDoc, deleteDoc, doc, query, where, orderBy, serverTimestamp } from 'https://www.gstatic.com/firebasejs/10.12.5/firebase-firestore.js';
 import { firebaseConfig } from './firebase-config.js';
 import { cloudinaryConfig } from './cloudinary-config.js';
 
@@ -145,14 +145,23 @@ async function refreshChaptersAndCharacters() {
 
   const chaptersSnap = await getDocs(collection(db,'chapters'));
   const chapters = chaptersSnap.docs.map(d=>({id:d.id,...d.data()}));
-  chapters.sort((a,b)=>(a.createdAt?.seconds??0)-(b.createdAt?.seconds??0));
+  chapters.sort((a,b)=>{
+    const an=Number.isFinite(Number(a.number)) && Number(a.number)>0 ? Number(a.number) : 999999;
+    const bn=Number.isFinite(Number(b.number)) && Number(b.number)>0 ? Number(b.number) : 999999;
+    if(an!==bn) return an-bn;
+    return (a.createdAt?.seconds??0)-(b.createdAt?.seconds??0);
+  });
   chList.innerHTML='';
   if(!chapters.length) chList.innerHTML='<p style="color:#aaa">لا توجد فصول بعد.</p>';
   for(const c of chapters){
     const row=document.createElement('div'); row.className='item-row';
-    row.innerHTML=`<div><strong>${escapeHtml(c.title||'فصل')}</strong><div style="color:#aaa;font-size:14px">${escapeHtml(novelNames.get(c.novelId)||'رواية غير معروفة')}</div></div>`;
+    row.innerHTML=`<div><strong>${c.number ? 'الفصل '+escapeHtml(c.number)+' — ' : 'بدون رقم — '}${escapeHtml(c.title||'فصل')}</strong><div style="color:#aaa;font-size:14px">${escapeHtml(novelNames.get(c.novelId)||'رواية غير معروفة')}</div></div>`;
+    const actions=document.createElement('div'); actions.className='admin-actions';
+    const edit=document.createElement('button'); edit.className='small-btn'; edit.textContent='تعديل / ترقيم';
+    edit.onclick=()=>editChapter(c);
     const del=document.createElement('button'); del.className='small-btn danger-btn'; del.textContent='حذف';
-    del.onclick=()=>deleteChapter(c.id,c.title||'هذا الفصل'); row.appendChild(del); chList.appendChild(row);
+    del.onclick=()=>deleteChapter(c.id,c.title||'هذا الفصل');
+    actions.appendChild(edit); actions.appendChild(del); row.appendChild(actions); chList.appendChild(row);
   }
 
   const charsSnap = await getDocs(collection(db,'characters'));
@@ -185,6 +194,27 @@ async function deleteNovel(id, title) {
   } catch(e){ console.error(e); setStatus('novelStatus','فشل حذف الرواية: '+(e.code||'خطأ')); }
 }
 
+function editChapter(c) {
+  $('chapterId').value = c.id || '';
+  $('chapterNovel').value = c.novelId || '';
+  $('chapterNumber').value = c.number ?? '';
+  $('chapterTitle').value = c.title || '';
+  $('chapterContent').value = c.content || '';
+  $('chapterStatus').textContent = `وضع التعديل: ${c.title || 'الفصل'}`;
+  $('saveChapter').textContent = 'حفظ التعديلات';
+  window.scrollTo({ top: Math.max(0, $('chapterTitle').getBoundingClientRect().top + window.scrollY - 120), behavior: 'smooth' });
+}
+
+$('clearChapter').onclick = () => {
+  $('chapterId').value = '';
+  $('chapterNovel').value = '';
+  $('chapterNumber').value = '';
+  $('chapterTitle').value = '';
+  $('chapterContent').value = '';
+  $('chapterStatus').textContent = '';
+  $('saveChapter').textContent = 'حفظ الفصل';
+};
+
 async function deleteChapter(id, title) {
   if(!confirm(`متأكد إنك عايز تحذف «${title}»؟`)) return;
   try { await deleteDoc(doc(db,'chapters',id)); await refreshChaptersAndCharacters(); }
@@ -198,25 +228,6 @@ async function deleteCharacter(id, name) {
 }
 
 function escapeHtml(s){return String(s).replace(/[&<>'"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;',"'":'&#39;','"':'&quot;'}[c]));}
-
-async function loadAboutSettings(){
-  try{
-    const snap=await getDoc(doc(db,'siteSettings','about'));
-    const data=snap.exists()?snap.data():{};
-    if($('aboutTitleInput')) $('aboutTitleInput').value=data.title||'نبذة عن الكاتب';
-    if($('aboutTextInput')) $('aboutTextInput').value=data.text||'';
-  }catch(e){ console.error(e); setStatus('aboutStatus','تعذر تحميل النبذة.'); }
-}
-
-$('saveAbout')?.addEventListener('click', async ()=>{
-  try{
-    const title=$('aboutTitleInput').value.trim()||'نبذة عن الكاتب';
-    const text=$('aboutTextInput').value.trim();
-    setStatus('aboutStatus','جاري الحفظ...');
-    await setDoc(doc(db,'siteSettings','about'),{title,text,updatedAt:serverTimestamp()},{merge:true});
-    setStatus('aboutStatus','تم حفظ النبذة ✅');
-  }catch(e){ console.error(e); setStatus('aboutStatus','فشل حفظ النبذة: '+(e.code||'تأكد من الصلاحيات.')); }
-});
 
 $('loginBtn').onclick = async()=>{
   try { await signInWithEmailAndPassword(auth,$('email').value.trim(),$('password').value); setStatus('loginStatus','تم الدخول.'); }
@@ -264,12 +275,32 @@ $('saveNovel').onclick=async()=>{
 
 $('saveChapter').onclick=async()=>{
   try{
-    const novelId=$('chapterNovel').value,title=$('chapterTitle').value.trim(),content=$('chapterContent').value.trim();
-    if(!novelId||!title||!content)return setStatus('chapterStatus','أكمل البيانات أولًا.');
-    setStatus('chapterStatus','جاري الحفظ...');
-    await addDoc(collection(db,'chapters'),{novelId,title,content,createdAt:serverTimestamp()});
-    setStatus('chapterStatus','تم حفظ الفصل ✅');
-    $('chapterTitle').value='';$('chapterContent').value='';
+    const chapterId=$('chapterId').value;
+    const novelId=$('chapterNovel').value;
+    const numberRaw=$('chapterNumber').value.trim();
+    const title=$('chapterTitle').value.trim();
+    const content=$('chapterContent').value.trim();
+    const number=Number(numberRaw);
+    if(!novelId||!numberRaw||!Number.isInteger(number)||number<1||!title||!content)return setStatus('chapterStatus','أكمل البيانات وأدخل رقم فصل صحيح (1 أو أكثر).');
+    setStatus('chapterStatus',chapterId?'جاري حفظ التعديلات...':'جاري الحفظ...');
+
+    // منع تكرار رقم الفصل داخل نفس الرواية مع إعطاء فرصة للاستمرار عند تعديل نفس الفصل.
+    const existingSnap = await getDocs(query(collection(db,'chapters'), where('novelId','==',novelId)));
+    const duplicate = existingSnap.docs.some(d => d.id !== chapterId && Number(d.data().number) === number);
+    if (duplicate) {
+      const ok = confirm(`الفصل رقم ${number} موجود بالفعل لهذه الرواية. هل تريد المتابعة رغم ذلك؟`);
+      if (!ok) { setStatus('chapterStatus','تم إلغاء الحفظ لتجنب تكرار رقم الفصل.'); return; }
+    }
+
+    const payload={novelId,number,title,content};
+    if(chapterId){
+      await updateDoc(doc(db,'chapters',chapterId),payload);
+      setStatus('chapterStatus','تم حفظ تعديلات الفصل ✅');
+    } else {
+      await addDoc(collection(db,'chapters'),{...payload,createdAt:serverTimestamp()});
+      setStatus('chapterStatus','تم حفظ الفصل ✅');
+    }
+    $('clearChapter').click();
     await refreshChaptersAndCharacters();
   }catch(e){console.error(e);setStatus('chapterStatus','حدث خطأ أثناء الحفظ: '+(e.code||'تأكد من الصلاحيات.'));}
 };
@@ -294,7 +325,6 @@ onAuthStateChanged(auth, async user=>{
     $('loginBox').classList.add('hidden');
     $('panel').classList.remove('hidden');
     await refreshNovels();
-    await loadAboutSettings();
   }else{
     $('loginBox').classList.remove('hidden');
     $('panel').classList.add('hidden');

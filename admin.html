@@ -47,11 +47,15 @@
     </div>
 
     <div class="admin-box">
-      <h2>إضافة فصل</h2>
+      <h2>إضافة / تعديل فصل</h2>
+      <input id="chapterId" type="hidden">
       <label>الرواية</label><select id="chapterNovel"></select>
-      <label>عنوان الفصل</label><input id="chapterTitle" placeholder="الفصل الأول: بداية الرحلة">
+      <div class="admin-grid">
+      <div><label>رقم الفصل</label><input id="chapterNumber" type="number" min="1" step="1" placeholder="1"><div class="hint">مثال: 1، 2، 3... وسيتم ترتيب الفصول حسب الرقم.</div></div>
+      <div><label>عنوان الفصل</label><input id="chapterTitle" placeholder="الفصل الأول: بداية الرحلة"></div>
+      </div>
       <label>محتوى الفصل</label><textarea id="chapterContent" placeholder="اكتب كل فقرة في سطر مستقل"></textarea>
-      <button id="saveChapter">حفظ الفصل</button>
+      <div class="admin-actions"><button id="saveChapter">حفظ الفصل</button><button id="clearChapter" class="small-btn">تفريغ</button></div>
       <div id="chapterStatus" class="admin-status"></div>
     </div>
 
@@ -63,17 +67,6 @@
       <label>صورة الشخصية</label><div class="admin-actions"><button type="button" id="uploadCharacterImage" class="small-btn">اختيار صورة من الجهاز</button><input id="characterImageUrl" type="url" placeholder="أو ضع رابط صورة مباشرًا"></div><div class="hint">اختار صورة الشخصية من جهازك وسيتم رفعها إلى Cloudinary ثم حفظ رابطها تلقائيًا.</div><img id="characterPreview" class="preview-img hidden">
       <button id="saveCharacter">حفظ الشخصية</button>
       <div id="characterStatus" class="admin-status"></div>
-    </div>
-
-    <div class="admin-box">
-      <h2>نبذتي / عن الكاتب</h2>
-      <label>عنوان النبذة</label>
-      <input id="aboutTitleInput" placeholder="نبذة عن الكاتب">
-      <label>النبذة</label>
-      <textarea id="aboutTextInput" placeholder="اكتب نبذتك هنا بحرية... يمكنك كتابة عدة فقرات."></textarea>
-      <div class="hint">اكتب أي نبذة تريدها. ستظهر في الصفحة الرئيسية للموقع تحت شعار Ahmed Novels.</div>
-      <button id="saveAbout">حفظ النبذة</button>
-      <div id="aboutStatus" class="admin-status"></div>
     </div>
 
     <div class="admin-box">
