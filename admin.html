@@ -33,6 +33,14 @@
 
   <div id="panel" class="hidden">
     <div class="admin-box">
+      <h2>نبذة عن الكاتب</h2>
+      <label>اكتب نبذتك كما تريد</label>
+      <textarea id="authorBio" placeholder="اكتب نبذة عنك هنا..."></textarea>
+      <div class="admin-actions"><button id="saveAuthorBio">حفظ النبذة</button></div>
+      <div id="authorBioStatus" class="admin-status"></div>
+    </div>
+
+    <div class="admin-box">
       <div class="admin-actions" style="justify-content:space-between;align-items:center">
         <h2 style="margin:0">إضافة / تعديل رواية</h2>
         <button id="logoutBtn" class="small-btn">تسجيل الخروج</button>
@@ -60,12 +68,13 @@
     </div>
 
     <div class="admin-box">
-      <h2>إضافة شخصية</h2>
-      <label>الرواية</label><select id="characterNovel"></select>
+      <h2 id="characterFormTitle">إضافة / تعديل شخصية</h2>
+      <label>الرواية</label><input id="characterId" type="hidden">
+      <select id="characterNovel"></select>
       <label>اسم الشخصية</label><input id="characterName" placeholder="كايدن براين">
       <label>الوصف</label><textarea id="characterDescription"></textarea>
       <label>صورة الشخصية</label><div class="admin-actions"><button type="button" id="uploadCharacterImage" class="small-btn">اختيار صورة من الجهاز</button><input id="characterImageUrl" type="url" placeholder="أو ضع رابط صورة مباشرًا"></div><div class="hint">اختار صورة الشخصية من جهازك وسيتم رفعها إلى Cloudinary ثم حفظ رابطها تلقائيًا.</div><img id="characterPreview" class="preview-img hidden">
-      <button id="saveCharacter">حفظ الشخصية</button>
+      <div class="admin-actions"><button id="saveCharacter">حفظ الشخصية</button><button id="clearCharacter" class="small-btn">تفريغ</button></div>
       <div id="characterStatus" class="admin-status"></div>
     </div>
 

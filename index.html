@@ -3,21 +3,26 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>مكتبة الروايات</title>
+<title>Ahmed Novels</title>
 <link rel="stylesheet" href="style.css">
 </head>
 <body>
 <header>
-  <h1>📚 مكتبة الروايات</h1>
+  <h1 class="site-logo"><span class="logo-mark">✦</span> Ahmed Novels <span class="logo-mark">✦</span></h1>
   <p>✨ اكتشف عوالم الكاتب أحمد، حيث تولد الحكايات وتُصنع الأساطير وتبدأ رحلات شخصيات لا تُنسى.</p>
 </header>
+
+<section class="author-bio" id="authorBio">
+  <h2>نبذة عن الكاتب</h2>
+  <p id="authorBioText">جارٍ تحميل النبذة...</p>
+</section>
 
 <section class="books" id="books">
   <p style="color:#aaa">جارٍ تحميل الروايات...</p>
 </section>
 
 <script type="module">
-import { db, collection, getDocs } from './site.js';
+import { db, collection, getDocs, getDoc, doc } from './site.js';
 
 const root = document.getElementById('books');
 const esc = s => String(s ?? '').replace(/[&<>'"]/g, c => ({
@@ -25,6 +30,14 @@ const esc = s => String(s ?? '').replace(/[&<>'"]/g, c => ({
 }[c]));
 
 try {
+  const bioSnap = await getDoc(doc(db, 'siteSettings', 'about'));
+  const bioText = document.getElementById('authorBioText');
+  if (bioSnap.exists() && bioSnap.data().bio) {
+    bioText.textContent = bioSnap.data().bio;
+  } else {
+    bioText.textContent = 'أضف نبذة عن الكاتب من لوحة الأدمن.';
+  }
+
   const snap = await getDocs(collection(db, 'novels'));
   const novels = snap.docs.map(d => ({ id: d.id, ...d.data() }));
   novels.sort((a,b) => {

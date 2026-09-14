@@ -1,6 +1,6 @@
 import { initializeApp } from 'https://www.gstatic.com/firebasejs/10.12.5/firebase-app.js';
 import { getAuth, signInWithEmailAndPassword, onAuthStateChanged, signOut } from 'https://www.gstatic.com/firebasejs/10.12.5/firebase-auth.js';
-import { getFirestore, collection, addDoc, getDocs, updateDoc, deleteDoc, doc, query, where, orderBy, serverTimestamp } from 'https://www.gstatic.com/firebasejs/10.12.5/firebase-firestore.js';
+import { getFirestore, collection, addDoc, getDocs, getDoc, setDoc, updateDoc, deleteDoc, doc, query, where, orderBy, serverTimestamp } from 'https://www.gstatic.com/firebasejs/10.12.5/firebase-firestore.js';
 import { firebaseConfig } from './firebase-config.js';
 import { cloudinaryConfig } from './cloudinary-config.js';
 
@@ -82,6 +82,30 @@ function setPreview(inputId, previewId) {
     img.classList.add('hidden');
   }
 }
+
+async function loadAuthorBio() {
+  const el = $('authorBio');
+  if (!el) return;
+  try {
+    const snap = await getDoc(doc(db, 'siteSettings', 'about'));
+    el.value = snap.exists() ? (snap.data().bio || '') : '';
+  } catch (e) {
+    console.error(e);
+    setStatus('authorBioStatus', 'تعذر تحميل النبذة.');
+  }
+}
+
+$('saveAuthorBio')?.addEventListener('click', async () => {
+  try {
+    const bio = $('authorBio')?.value.trim() || '';
+    setStatus('authorBioStatus', 'جاري الحفظ...');
+    await setDoc(doc(db, 'siteSettings', 'about'), { bio });
+    setStatus('authorBioStatus', 'تم حفظ النبذة ✅');
+  } catch (e) {
+    console.error(e);
+    setStatus('authorBioStatus', 'فشل حفظ النبذة: ' + (e.code || 'تأكد من الصلاحيات.'));
+  }
+});
 
 async function refreshNovels() {
   let snap;
@@ -172,10 +196,40 @@ async function refreshChaptersAndCharacters() {
   for(const c of chars){
     const row=document.createElement('div'); row.className='item-row';
     row.innerHTML=`<div><strong>${escapeHtml(c.name||'شخصية')}</strong><div style="color:#aaa;font-size:14px">${escapeHtml(novelNames.get(c.novelId)||'رواية غير معروفة')}</div></div>`;
+    const actions=document.createElement('div'); actions.className='admin-actions';
+    const edit=document.createElement('button'); edit.className='small-btn'; edit.textContent='تعديل';
+    edit.onclick=()=>editCharacter(c);
     const del=document.createElement('button'); del.className='small-btn danger-btn'; del.textContent='حذف';
-    del.onclick=()=>deleteCharacter(c.id,c.name||'هذه الشخصية'); row.appendChild(del); charList.appendChild(row);
+    del.onclick=()=>deleteCharacter(c.id,c.name||'هذه الشخصية');
+    actions.appendChild(edit); actions.appendChild(del); row.appendChild(actions); charList.appendChild(row);
   }
 }
+
+function editCharacter(c) {
+  $('characterId').value = c.id || '';
+  $('characterNovel').value = c.novelId || '';
+  $('characterName').value = c.name || '';
+  $('characterDescription').value = c.description || '';
+  $('characterImageUrl').value = c.imageUrl || '';
+  setPreview('characterImageUrl','characterPreview');
+  $('characterStatus').textContent = `وضع التعديل: ${c.name || 'الشخصية'}`;
+  $('saveCharacter').textContent = 'حفظ التعديلات';
+  $('characterFormTitle').textContent = 'تعديل شخصية';
+  window.scrollTo({ top: Math.max(0, $('characterName').getBoundingClientRect().top + window.scrollY - 120), behavior: 'smooth' });
+}
+
+$('clearCharacter').onclick = () => {
+  $('characterId').value = '';
+  $('characterNovel').value = '';
+  $('characterName').value = '';
+  $('characterDescription').value = '';
+  $('characterImageUrl').value = '';
+  $('characterPreview').removeAttribute('src');
+  $('characterPreview').classList.add('hidden');
+  $('characterStatus').textContent = '';
+  $('saveCharacter').textContent = 'حفظ الشخصية';
+  $('characterFormTitle').textContent = 'إضافة / تعديل شخصية';
+};
 
 async function deleteNovel(id, title) {
   if(!confirm(`متأكد إنك عايز تحذف «${title}»؟\nسيتم حذف الفصول والشخصيات التابعة لها أيضًا.`)) return;
@@ -307,15 +361,21 @@ $('saveChapter').onclick=async()=>{
 
 $('saveCharacter').onclick=async()=>{
   try{
+    const characterId=$('characterId').value;
     const novelId=$('characterNovel').value,name=$('characterName').value.trim(),description=$('characterDescription').value.trim();
     const imageUrl=normalizeImageUrl($('characterImageUrl').value);
     if(!novelId||!name)return setStatus('characterStatus','أكمل البيانات أولًا.');
     if($('characterImageUrl').value.trim() && !imageUrl) return setStatus('characterStatus','رابط صورة الشخصية لازم يبدأ بـ https:// أو http://');
-    setStatus('characterStatus','جاري الحفظ...');
-    await addDoc(collection(db,'characters'),{novelId,name,description,imageUrl,createdAt:serverTimestamp()});
-    setStatus('characterStatus','تم حفظ الشخصية ✅');
-    $('characterName').value='';$('characterDescription').value='';$('characterImageUrl').value='';
-    $('characterPreview').removeAttribute('src');$('characterPreview').classList.add('hidden');
+    setStatus('characterStatus',characterId?'جاري حفظ التعديلات...':'جاري الحفظ...');
+    const payload={novelId,name,description,imageUrl};
+    if(characterId){
+      await updateDoc(doc(db,'characters',characterId),payload);
+      setStatus('characterStatus','تم حفظ تعديلات الشخصية ✅');
+    } else {
+      await addDoc(collection(db,'characters'),{...payload,createdAt:serverTimestamp()});
+      setStatus('characterStatus','تم حفظ الشخصية ✅');
+    }
+    $('clearCharacter').click();
     await refreshChaptersAndCharacters();
   }catch(e){console.error(e);setStatus('characterStatus','حدث خطأ أثناء الحفظ: '+(e.code||'تأكد من الصلاحيات.'));}
 };
@@ -324,6 +384,7 @@ onAuthStateChanged(auth, async user=>{
   if(user){
     $('loginBox').classList.add('hidden');
     $('panel').classList.remove('hidden');
+    await loadAuthorBio();
     await refreshNovels();
   }else{
     $('loginBox').classList.remove('hidden');

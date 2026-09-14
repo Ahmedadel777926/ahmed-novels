@@ -222,3 +222,47 @@ body {
     gap: 12px;
     flex-wrap: wrap;
 }
+
+
+/* Ahmed Novels — decorative title */
+.site-logo {
+    font-family: Georgia, 'Times New Roman', serif;
+    font-style: italic;
+    font-weight: 700;
+    letter-spacing: 2px;
+    text-shadow: 0 0 14px rgba(240,199,94,0.25);
+    color: #f0c75e;
+}
+
+.logo-mark {
+    display: inline-block;
+    font-family: Georgia, serif;
+    font-size: 0.7em;
+    vertical-align: middle;
+    margin: 0 8px;
+}
+
+.author-bio {
+    max-width: 900px;
+    margin: 10px auto 25px;
+    padding: 28px 25px;
+    background: #151515;
+    border: 1px solid #2d2d2d;
+    border-radius: 20px;
+    text-align: center;
+    box-shadow: 0 0 20px rgba(0,0,0,0.35);
+}
+
+.author-bio h2 {
+    color: #f0c75e;
+    margin: 0 0 12px;
+    font-size: 28px;
+}
+
+.author-bio p {
+    color: #ddd;
+    font-size: 18px;
+    line-height: 2;
+    margin: 0;
+    white-space: pre-wrap;
+}
