@@ -17,7 +17,7 @@
 .hidden{display:none!important}
 .item-row{background:#151515;padding:12px;border-radius:14px;margin:8px 0;display:flex;justify-content:space-between;gap:10px;align-items:center;flex-wrap:wrap}
 .small-btn{padding:8px 16px;font-size:14px}.danger-btn{border-color:#9b3232!important;color:#ffb1b1!important}
-.preview-img{width:100px;height:130px;object-fit:cover;border-radius:10px;margin-top:5px}
+.preview-img{width:100px;height:130px;object-fit:cover;border-radius:10px;margin-top:5px}.hint{color:#888;font-size:13px;margin:-6px 0 10px}
 </style>
 </head>
 <body>
@@ -40,7 +40,7 @@
       <input id="novelId" type="hidden">
       <label>اسم الرواية</label><input id="novelTitle" placeholder="مثال: أورورا: صعود نبيل">
       <label>وصف الرواية</label><textarea id="novelDescription" placeholder="وصف مختصر"></textarea>
-      <label>صورة الغلاف</label><input id="novelCover" type="file" accept="image/*">
+      <label>صورة الغلاف</label><div class="admin-actions"><button type="button" id="uploadNovelCover" class="small-btn">اختيار صورة من الجهاز</button><input id="novelCoverUrl" type="url" placeholder="أو ضع رابط صورة مباشرًا"></div><div class="hint">اختار صورة AI من جهازك وسيتم رفعها إلى Cloudinary ثم حفظ رابطها تلقائيًا. لا تحتاج Firebase Storage.</div>
       <img id="novelPreview" class="preview-img hidden">
       <div class="admin-actions"><button id="saveNovel">حفظ الرواية</button><button id="clearNovel" class="small-btn">تفريغ</button></div>
       <div id="novelStatus" class="admin-status"></div>
@@ -60,9 +60,29 @@
       <label>الرواية</label><select id="characterNovel"></select>
       <label>اسم الشخصية</label><input id="characterName" placeholder="كايدن براين">
       <label>الوصف</label><textarea id="characterDescription"></textarea>
-      <label>صورة الشخصية</label><input id="characterImage" type="file" accept="image/*">
+      <label>صورة الشخصية</label><div class="admin-actions"><button type="button" id="uploadCharacterImage" class="small-btn">اختيار صورة من الجهاز</button><input id="characterImageUrl" type="url" placeholder="أو ضع رابط صورة مباشرًا"></div><div class="hint">اختار صورة الشخصية من جهازك وسيتم رفعها إلى Cloudinary ثم حفظ رابطها تلقائيًا.</div><img id="characterPreview" class="preview-img hidden">
       <button id="saveCharacter">حفظ الشخصية</button>
       <div id="characterStatus" class="admin-status"></div>
+    </div>
+
+    <div class="admin-box">
+      <h2>نبذتي / عن الكاتب</h2>
+      <label>عنوان النبذة</label>
+      <input id="aboutTitleInput" placeholder="نبذة عن الكاتب">
+      <label>النبذة</label>
+      <textarea id="aboutTextInput" placeholder="اكتب نبذتك هنا بحرية... يمكنك كتابة عدة فقرات."></textarea>
+      <div class="hint">اكتب أي نبذة تريدها. ستظهر في الصفحة الرئيسية للموقع تحت شعار Ahmed Novels.</div>
+      <button id="saveAbout">حفظ النبذة</button>
+      <div id="aboutStatus" class="admin-status"></div>
+    </div>
+
+    <div class="admin-box">
+      <h2>إعداد الصور</h2>
+      <label>Cloudinary Upload Preset</label>
+      <input id="cloudinaryPreset" type="text" placeholder="مثال: ahmed_novels_unsigned">
+      <div class="hint">هذه قيمة واحدة تنشئها مرة في Cloudinary كـ Unsigned Upload Preset. يتم حفظها على هذا المتصفح فقط.</div>
+      <div class="admin-actions"><button type="button" id="saveCloudinaryPreset" class="small-btn">حفظ إعداد الصور</button></div>
+      <div id="cloudinaryStatus" class="admin-status"></div>
     </div>
 
     <div class="admin-box">
@@ -81,6 +101,7 @@
     </div>
   </div>
 </div>
+<script src="https://upload-widget.cloudinary.com/latest/global/all.js"></script>
 <script type="module" src="admin.js"></script>
 </body>
 </html>

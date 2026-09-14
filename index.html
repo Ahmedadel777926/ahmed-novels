@@ -3,14 +3,29 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>مكتبة الروايات</title>
+<title>Ahmed Novels</title>
 <link rel="stylesheet" href="style.css">
 </head>
 <body>
-<header>
-  <h1>📚 مكتبة الروايات</h1>
-  <p>✨ اكتشف عوالم الكاتب أحمد، حيث تولد الحكايات وتُصنع الأساطير وتبدأ رحلات شخصيات لا تُنسى.</p>
+<header class="site-header">
+  <div class="brand-mark">
+    <span class="brand-symbol">✦</span>
+    <span class="brand-name">Ahmed <em>Novels</em></span>
+    <span class="brand-line"></span>
+  </div>
+  <p class="brand-tagline">حيث تبدأ الحكاية... وتبقى الأسطورة.</p>
 </header>
+
+<section class="about-author" id="aboutAuthor">
+  <div class="about-inner">
+    <div class="about-ornament">✦</div>
+    <div>
+      <p class="section-kicker">ABOUT THE AUTHOR</p>
+      <h2 id="aboutTitle">نبذة عن الكاتب</h2>
+      <div id="aboutText"><p>اكتب نبذتك من لوحة الأدمن، وستظهر هنا تلقائيًا.</p></div>
+    </div>
+  </div>
+</section>
 
 <section class="books" id="books">
   <p style="color:#aaa">جارٍ تحميل الروايات...</p>
@@ -25,6 +40,17 @@ const esc = s => String(s ?? '').replace(/[&<>'"]/g, c => ({
 }[c]));
 
 try {
+  const aboutSnap = await getDocs(collection(db, 'siteSettings'));
+  const aboutDoc = aboutSnap.docs.find(d => d.id === 'about');
+  if (aboutDoc) {
+    const about = aboutDoc.data();
+    if (about.title) document.getElementById('aboutTitle').textContent = about.title;
+    if (about.text) {
+      const safe = esc(about.text).replace(/\n\s*\n/g, '</p><p>').replace(/\n/g, '<br>');
+      document.getElementById('aboutText').innerHTML = '<p>' + safe + '</p>';
+    }
+  }
+
   const snap = await getDocs(collection(db, 'novels'));
   const novels = snap.docs.map(d => ({ id: d.id, ...d.data() }));
   novels.sort((a,b) => {

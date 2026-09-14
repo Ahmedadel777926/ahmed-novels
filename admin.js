@@ -1,45 +1,130 @@
 import { initializeApp } from 'https://www.gstatic.com/firebasejs/10.12.5/firebase-app.js';
 import { getAuth, signInWithEmailAndPassword, onAuthStateChanged, signOut } from 'https://www.gstatic.com/firebasejs/10.12.5/firebase-auth.js';
-import { getFirestore, collection, addDoc, getDocs, updateDoc, deleteDoc, doc, query, where, orderBy, serverTimestamp } from 'https://www.gstatic.com/firebasejs/10.12.5/firebase-firestore.js';
-import { getStorage, ref, uploadBytes, getDownloadURL } from 'https://www.gstatic.com/firebasejs/10.12.5/firebase-storage.js';
+import { getFirestore, collection, addDoc, getDocs, getDoc, setDoc, updateDoc, deleteDoc, doc, query, where, orderBy, serverTimestamp } from 'https://www.gstatic.com/firebasejs/10.12.5/firebase-firestore.js';
 import { firebaseConfig } from './firebase-config.js';
+import { cloudinaryConfig } from './cloudinary-config.js';
 
 const app = initializeApp(firebaseConfig);
 const auth = getAuth(app);
 const db = getFirestore(app);
-const storage = getStorage(app);
+
+function getCloudinaryPreset() {
+  return localStorage.getItem('ahmedNovelsCloudinaryPreset') || cloudinaryConfig.uploadPreset || '';
+}
+
+function setCloudinaryStatus(msg) {
+  setStatus('cloudinaryStatus', msg);
+}
+
+function setupCloudinaryUpload(buttonId, inputId, previewId, label) {
+  const btn = $(buttonId);
+  if (!btn) return;
+  btn.addEventListener('click', () => {
+    const preset = getCloudinaryPreset().trim();
+    if (!preset) {
+      setCloudinaryStatus('اكتب Upload Preset أولًا في إعداد الصور.');
+      $('cloudinaryPreset')?.focus();
+      return;
+    }
+    if (!window.cloudinary) {
+      setCloudinaryStatus('لم يتم تحميل Cloudinary. تأكد من اتصال الإنترنت ثم حدّث الصفحة.');
+      return;
+    }
+    const widget = window.cloudinary.createUploadWidget(
+      {
+        cloudName: cloudinaryConfig.cloudName,
+        uploadPreset: preset,
+        sources: ['local'],
+        multiple: false,
+        maxFiles: 1,
+        clientAllowedFormats: ['jpg', 'jpeg', 'png', 'webp'],
+        maxImageFileSize: 10000000,
+        showAdvancedOptions: false,
+        cropping: false,
+        styles: { palette: { window: '#111111', windowBorder: '#444444', tabIcon: '#f0c75e', menuIcons: '#f0c75e', textDark: '#eeeeee', textLight: '#ffffff', link: '#f0c75e', action: '#f0c75e', inactiveTabIcon: '#888888', error: '#ff6b6b', inProgress: '#f0c75e', complete: '#f0c75e', sourceBg: '#1c1c1c' } }
+      },
+      (error, result) => {
+        if (error) {
+          console.error('Cloudinary upload error', error);
+          setCloudinaryStatus('فشل رفع ' + label + ': ' + (error.statusText || error.message || 'خطأ غير معروف'));
+          return;
+        }
+        if (result?.event === 'success' && result.info?.secure_url) {
+          $(inputId).value = result.info.secure_url;
+          setPreview(inputId, previewId);
+          setCloudinaryStatus('تم رفع ' + label + ' بنجاح ✅');
+        }
+      }
+    );
+    widget.open();
+  });
+}
 
 const $ = id => document.getElementById(id);
-const setStatus = (id, msg) => $(id).textContent = msg;
+const setStatus = (id, msg) => { const el = $(id); if (el) el.textContent = msg; };
 
-async function uploadFile(file, folder) {
-  if (!file) return '';
-  const safeName = file.name.replace(/[^a-zA-Z0-9._-]/g, '_');
-  const fileRef = ref(storage, `${folder}/${Date.now()}_${safeName}`);
-  await uploadBytes(fileRef, file);
-  return await getDownloadURL(fileRef);
+function normalizeImageUrl(value) {
+  const url = String(value || '').trim();
+  if (!url) return '';
+  if (!/^https?:\/\//i.test(url)) return '';
+  return url;
+}
+
+function setPreview(inputId, previewId) {
+  const url = normalizeImageUrl($(inputId)?.value);
+  const img = $(previewId);
+  if (!img) return;
+  if (url) {
+    img.src = url;
+    img.classList.remove('hidden');
+  } else {
+    img.removeAttribute('src');
+    img.classList.add('hidden');
+  }
 }
 
 async function refreshNovels() {
-  const snap = await getDocs(query(collection(db,'novels'), orderBy('createdAt','desc'))).catch(async()=>await getDocs(collection(db,'novels')));
+  let snap;
+  try {
+    snap = await getDocs(query(collection(db,'novels'), orderBy('createdAt','desc')));
+  } catch {
+    snap = await getDocs(collection(db,'novels'));
+  }
+
   const list = $('novelsList');
-  const select1 = $('chapterNovel'), select2 = $('characterNovel');
+  const select1 = $('chapterNovel');
+  const select2 = $('characterNovel');
   list.innerHTML = '';
-  select1.innerHTML = ''; select2.innerHTML = '';
+  select1.innerHTML = '<option value="">اختر الرواية</option>';
+  select2.innerHTML = '<option value="">اختر الرواية</option>';
+
   if (snap.empty) {
     list.innerHTML = '<p style="color:#aaa">لا توجد روايات بعد.</p>';
     await refreshChaptersAndCharacters();
     return;
   }
+
   snap.forEach(d => {
     const n = d.data();
-    const opt1 = new Option(n.title, d.id), opt2 = new Option(n.title, d.id);
-    select1.add(opt1); select2.add(opt2);
+    select1.add(new Option(n.title || 'بدون اسم', d.id));
+    select2.add(new Option(n.title || 'بدون اسم', d.id));
+
     const row = document.createElement('div'); row.className='item-row';
     row.innerHTML = `<div><strong>${escapeHtml(n.title||'بدون اسم')}</strong><div style="color:#aaa;font-size:14px">${escapeHtml(n.description||'')}</div></div>`;
     const actions = document.createElement('div'); actions.className='admin-actions';
+
     const edit = document.createElement('button'); edit.className='small-btn'; edit.textContent='تعديل';
-    edit.onclick=()=>{ $('novelId').value=d.id; $('novelTitle').value=n.title||''; $('novelDescription').value=n.description||''; $('novelStatus').textContent='وضع التعديل: '+n.title; window.scrollTo({top:0,behavior:'smooth'}); };
+    edit.onclick=()=>{
+      $('novelId').value=d.id;
+      $('novelTitle').value=n.title||'';
+      $('novelDescription').value=n.description||'';
+      $('novelCoverUrl').value=n.coverUrl||'';
+      $('novelPreview').src=n.coverUrl||'';
+      $('novelPreview').classList.toggle('hidden', !n.coverUrl);
+      $('novelStatus').textContent='وضع التعديل: '+(n.title||'الرواية');
+      window.scrollTo({top:0,behavior:'smooth'});
+    };
+
     const del = document.createElement('button'); del.className='small-btn danger-btn'; del.textContent='حذف';
     del.onclick=()=>deleteNovel(d.id, n.title || 'هذه الرواية');
     actions.appendChild(edit); actions.appendChild(del); row.appendChild(actions); list.appendChild(row);
@@ -114,31 +199,104 @@ async function deleteCharacter(id, name) {
 
 function escapeHtml(s){return String(s).replace(/[&<>'"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;',"'":'&#39;','"':'&quot;'}[c]));}
 
+async function loadAboutSettings(){
+  try{
+    const snap=await getDoc(doc(db,'siteSettings','about'));
+    const data=snap.exists()?snap.data():{};
+    if($('aboutTitleInput')) $('aboutTitleInput').value=data.title||'نبذة عن الكاتب';
+    if($('aboutTextInput')) $('aboutTextInput').value=data.text||'';
+  }catch(e){ console.error(e); setStatus('aboutStatus','تعذر تحميل النبذة.'); }
+}
+
+$('saveAbout')?.addEventListener('click', async ()=>{
+  try{
+    const title=$('aboutTitleInput').value.trim()||'نبذة عن الكاتب';
+    const text=$('aboutTextInput').value.trim();
+    setStatus('aboutStatus','جاري الحفظ...');
+    await setDoc(doc(db,'siteSettings','about'),{title,text,updatedAt:serverTimestamp()},{merge:true});
+    setStatus('aboutStatus','تم حفظ النبذة ✅');
+  }catch(e){ console.error(e); setStatus('aboutStatus','فشل حفظ النبذة: '+(e.code||'تأكد من الصلاحيات.')); }
+});
+
 $('loginBtn').onclick = async()=>{
   try { await signInWithEmailAndPassword(auth,$('email').value.trim(),$('password').value); setStatus('loginStatus','تم الدخول.'); }
   catch(e){ setStatus('loginStatus','فشل تسجيل الدخول: تأكد من البريد وكلمة المرور وإعداد Firebase.'); console.error(e); }
 };
 $('logoutBtn').onclick=()=>signOut(auth);
-$('clearNovel').onclick=()=>{ $('novelId').value='';$('novelTitle').value='';$('novelDescription').value='';$('novelCover').value='';$('novelPreview').classList.add('hidden');$('novelStatus').textContent=''; };
-$('saveNovel').onclick=async()=>{
-  try{
-    const title=$('novelTitle').value.trim(), description=$('novelDescription').value.trim(), id=$('novelId').value;
-    if(!title) return setStatus('novelStatus','اكتب اسم الرواية أولًا.');
-    setStatus('novelStatus','جاري الحفظ...');
-    let coverUrl='';
-    if($('novelCover').files[0]) coverUrl=await uploadFile($('novelCover').files[0],'novel-covers');
-    if(id){ const data={title,description}; if(coverUrl)data.coverUrl=coverUrl; await updateDoc(doc(db,'novels',id),data); }
-    else await addDoc(collection(db,'novels'),{title,description,coverUrl,createdAt:serverTimestamp()});
-    setStatus('novelStatus','تم حفظ الرواية ✅'); $('clearNovel').click(); await refreshNovels();
-  }catch(e){console.error(e);setStatus('novelStatus','حدث خطأ أثناء الحفظ.');}
-};
-$('saveChapter').onclick=async()=>{
-  try{const novelId=$('chapterNovel').value,title=$('chapterTitle').value.trim(),content=$('chapterContent').value.trim(); if(!novelId||!title||!content)return setStatus('chapterStatus','أكمل البيانات أولًا.'); setStatus('chapterStatus','جاري الحفظ...'); await addDoc(collection(db,'chapters'),{novelId,title,content,createdAt:serverTimestamp()}); setStatus('chapterStatus','تم حفظ الفصل ✅'); $('chapterTitle').value='';$('chapterContent').value='';}
-  catch(e){console.error(e);setStatus('chapterStatus','حدث خطأ أثناء الحفظ.');}
-};
-$('saveCharacter').onclick=async()=>{
-  try{const novelId=$('characterNovel').value,name=$('characterName').value.trim(),description=$('characterDescription').value.trim(); if(!novelId||!name)return setStatus('characterStatus','أكمل البيانات أولًا.'); setStatus('characterStatus','جاري الحفظ...'); let imageUrl='';if($('characterImage').files[0])imageUrl=await uploadFile($('characterImage').files[0],'character-images'); await addDoc(collection(db,'characters'),{novelId,name,description,imageUrl,createdAt:serverTimestamp()}); setStatus('characterStatus','تم حفظ الشخصية ✅'); $('characterName').value='';$('characterDescription').value='';$('characterImage').value='';}
-  catch(e){console.error(e);setStatus('characterStatus','حدث خطأ أثناء الحفظ.');}
+
+$('clearNovel').onclick=()=>{
+  $('novelId').value='';
+  $('novelTitle').value='';
+  $('novelDescription').value='';
+  $('novelCoverUrl').value='';
+  $('novelPreview').removeAttribute('src');
+  $('novelPreview').classList.add('hidden');
+  $('novelStatus').textContent='';
 };
 
-onAuthStateChanged(auth, async user=>{ if(user){$('loginBox').classList.add('hidden');$('panel').classList.remove('hidden');await refreshNovels();}else{$('loginBox').classList.remove('hidden');$('panel').classList.add('hidden');} });
+$('novelCoverUrl').addEventListener('input', ()=>setPreview('novelCoverUrl','novelPreview'));
+$('characterImageUrl').addEventListener('input', ()=>setPreview('characterImageUrl','characterPreview'));
+
+$('cloudinaryPreset').value = getCloudinaryPreset();
+$('saveCloudinaryPreset').onclick = ()=>{ const v=$('cloudinaryPreset').value.trim(); if(!v) return setCloudinaryStatus('اكتب Upload Preset.'); localStorage.setItem('ahmedNovelsCloudinaryPreset', v); setCloudinaryStatus('تم حفظ إعداد الصور على هذا المتصفح ✅'); };
+setupCloudinaryUpload('uploadNovelCover','novelCoverUrl','novelPreview','غلاف الرواية');
+setupCloudinaryUpload('uploadCharacterImage','characterImageUrl','characterPreview','صورة الشخصية');
+
+$('saveNovel').onclick=async()=>{
+  try{
+    const title=$('novelTitle').value.trim();
+    const description=$('novelDescription').value.trim();
+    const id=$('novelId').value;
+    const coverUrl=normalizeImageUrl($('novelCoverUrl').value);
+    if(!title) return setStatus('novelStatus','اكتب اسم الرواية أولًا.');
+    if($('novelCoverUrl').value.trim() && !coverUrl) return setStatus('novelStatus','رابط صورة الغلاف لازم يبدأ بـ https:// أو http://');
+    setStatus('novelStatus','جاري الحفظ...');
+    if(id){
+      await updateDoc(doc(db,'novels',id),{title,description,coverUrl});
+    } else {
+      await addDoc(collection(db,'novels'),{title,description,coverUrl,createdAt:serverTimestamp()});
+    }
+    setStatus('novelStatus','تم حفظ الرواية ✅');
+    $('clearNovel').click();
+    await refreshNovels();
+  }catch(e){console.error(e);setStatus('novelStatus','حدث خطأ أثناء الحفظ: '+(e.code||'تأكد من الصلاحيات.'));}
+};
+
+$('saveChapter').onclick=async()=>{
+  try{
+    const novelId=$('chapterNovel').value,title=$('chapterTitle').value.trim(),content=$('chapterContent').value.trim();
+    if(!novelId||!title||!content)return setStatus('chapterStatus','أكمل البيانات أولًا.');
+    setStatus('chapterStatus','جاري الحفظ...');
+    await addDoc(collection(db,'chapters'),{novelId,title,content,createdAt:serverTimestamp()});
+    setStatus('chapterStatus','تم حفظ الفصل ✅');
+    $('chapterTitle').value='';$('chapterContent').value='';
+    await refreshChaptersAndCharacters();
+  }catch(e){console.error(e);setStatus('chapterStatus','حدث خطأ أثناء الحفظ: '+(e.code||'تأكد من الصلاحيات.'));}
+};
+
+$('saveCharacter').onclick=async()=>{
+  try{
+    const novelId=$('characterNovel').value,name=$('characterName').value.trim(),description=$('characterDescription').value.trim();
+    const imageUrl=normalizeImageUrl($('characterImageUrl').value);
+    if(!novelId||!name)return setStatus('characterStatus','أكمل البيانات أولًا.');
+    if($('characterImageUrl').value.trim() && !imageUrl) return setStatus('characterStatus','رابط صورة الشخصية لازم يبدأ بـ https:// أو http://');
+    setStatus('characterStatus','جاري الحفظ...');
+    await addDoc(collection(db,'characters'),{novelId,name,description,imageUrl,createdAt:serverTimestamp()});
+    setStatus('characterStatus','تم حفظ الشخصية ✅');
+    $('characterName').value='';$('characterDescription').value='';$('characterImageUrl').value='';
+    $('characterPreview').removeAttribute('src');$('characterPreview').classList.add('hidden');
+    await refreshChaptersAndCharacters();
+  }catch(e){console.error(e);setStatus('characterStatus','حدث خطأ أثناء الحفظ: '+(e.code||'تأكد من الصلاحيات.'));}
+};
+
+onAuthStateChanged(auth, async user=>{
+  if(user){
+    $('loginBox').classList.add('hidden');
+    $('panel').classList.remove('hidden');
+    await refreshNovels();
+    await loadAboutSettings();
+  }else{
+    $('loginBox').classList.remove('hidden');
+    $('panel').classList.add('hidden');
+  }
+});
