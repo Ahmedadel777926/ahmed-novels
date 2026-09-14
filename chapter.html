@@ -1,0 +1,44 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>الفصل</title>
+<link rel="stylesheet" href="style.css">
+</head>
+<body>
+<header>
+  <h1 id="siteTitle">⚔️ الرواية</h1>
+  <p id="chapterTitle"></p>
+</header>
+<section class="chapter">
+  <h2 id="heading"></h2>
+  <div id="content"></div>
+</section>
+<script type="module">
+import { db, getDoc, doc } from './site.js';
+const id = new URLSearchParams(location.search).get('id');
+const content = document.getElementById('content');
+try {
+  if (!id) throw new Error('missing');
+  const snap = await getDoc(doc(db, 'chapters', id));
+  if (!snap.exists()) throw new Error('missing');
+  const c = snap.data();
+  document.title = c.title || 'الفصل';
+  document.getElementById('chapterTitle').textContent = c.title || '';
+  document.getElementById('heading').textContent = c.title || '';
+  content.innerHTML = '';
+  const paragraphs = String(c.content || '').split(/\n{2,}/);
+  for (const text of paragraphs) {
+    if (!text.trim()) continue;
+    const p = document.createElement('p');
+    p.textContent = text.trim();
+    content.appendChild(p);
+  }
+} catch (e) {
+  console.error(e);
+  content.innerHTML = '<p style="color:#aaa">تعذر تحميل الفصل.</p>';
+}
+</script>
+</body>
+</html>

@@ -1,141 +1,111 @@
 <!DOCTYPE html>
 <html lang="ar" dir="rtl">
-
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>أورورا: صعود نبيل</title>
-
-    <link rel="stylesheet" href="style.css">
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>الرواية</title>
+<link rel="stylesheet" href="style.css">
 </head>
-
-
 <body>
-
-
 <header>
-    <h1>⚔️ أورورا: صعود نبيل</h1>
-
-    <p>
-        رحلة كايدن براين نحو تغيير العالم
-    </p>
-
+  <h1 id="title">⚔️ الرواية</h1>
+  <p id="subtitle"></p>
 </header>
 
-
-
 <section class="novel-page">
+  <img id="cover" class="cover" src="images/aurora.jpeg" alt="غلاف الرواية">
+  <h2>عن الرواية</h2>
+  <p id="description"></p>
 
+  <h2>الشخصيات الرئيسية</h2>
+  <div class="characters" id="characters"></div>
 
-    <img class="cover" src="images/aurora.jpeg" alt="غلاف أورورا">
+  <h2>📖 الفصول</h2>
+  <div class="chapters" id="chapters"></div>
 
-
-    <h2>عن الرواية</h2>
-
-    <p>
-        في عالم تحكمه السلطة والفوارق بين الطبقات،
-        تبدأ رحلة كايدن براين لاكتشاف الحقيقة،
-        ومحاولة تغيير مصير العالم وإنقاذ من لا يملكون صوتًا.
-    </p>
-
-
-
-    <h2>الشخصيات الرئيسية</h2>
-
-
-    <div class="characters">
-
-
-
-        <div class="character">
-
-            <img src="images/kaiden.jpeg" alt="كايدن براين">
-
-            <h3>كايدن براين</h3>
-
-            <p>
-                نجل الكونت ألبرت،
-                يسعى لتغيير النظام وإنقاذ الفقراء من الظلم.
-            </p>
-
-        </div>
-
-
-
-
-
-        <div class="character">
-
-            <img src="images/fiona.jpeg" alt="فيونا مارس">
-
-            <h3>فيونا مارس</h3>
-
-            <p>
-                شخصية مهمة في رحلة كايدن
-                وتحمل دورًا مؤثرًا في الأحداث.
-            </p>
-
-        </div>
-
-
-
-
-
-        <div class="character">
-
-            <img src="images/eugene.jpeg" alt="يوجين">
-
-            <h3>يوجين</h3>
-
-            <p>
-                تلميذ ويليام ورفيق طريق كايدن.
-            </p>
-
-        </div>
-
-
-
-
-    </div>
-
-
-
-    <h2>📖 الفصول</h2>
-
-
-    <div class="chapters">
-
-        <button>
-            الفصل الأول: بداية الرحلة
-        </button>
-
-
-        <button>
-            الفصل الثاني: كتاب ويليام
-        </button>
-
-
-        <button>
-            الفصل الثالث: طريق التغيير
-        </button>
-
-
-    </div>
-
-
-
-   <a href="chapter1.html">
-<button class="read-btn">
-📖 ابدأ القراءة
-</button>
-</a>
-
-
-
+  <a id="startLink" href="#"><button class="read-btn">📖 ابدأ القراءة</button></a>
 </section>
 
+<script type="module">
+import { db, collection, getDocs, getDoc, query, where, doc } from './site.js';
 
+const id = new URLSearchParams(location.search).get('id');
+const fallback = {
+  id: 'fallback-aurora',
+  title: 'أورورا: صعود نبيل',
+  description: 'في عالم تحكمه السلطة والفوارق بين الطبقات، تبدأ رحلة كايدن براين لاكتشاف الحقيقة، ومحاولة تغيير مصير العالم وإنقاذ من لا يملكون صوتًا.',
+  coverUrl: 'images/aurora.jpeg'
+};
 
+const esc = s => String(s ?? '').replace(/[&<>'"]/g, c => ({
+  '&':'&amp;', '<':'&lt;', '>':'&gt;', "'":'&#39;', '"':'&quot;'
+}[c]));
+
+const empty = (el, text) => { el.innerHTML = `<p style="color:#aaa">${text}</p>`; };
+
+try {
+  let novel = fallback;
+  let novelId = id;
+
+  if (id) {
+    const snap = await getDoc(doc(db, 'novels', id));
+    if (snap.exists()) {
+      novel = { id: snap.id, ...snap.data() };
+      novelId = snap.id;
+    }
+  }
+
+  document.title = novel.title || fallback.title;
+  document.getElementById('title').textContent = '⚔️ ' + (novel.title || fallback.title);
+  document.getElementById('subtitle').textContent = novel.description || '';
+  document.getElementById('description').textContent = novel.description || '';
+  document.getElementById('cover').src = novel.coverUrl || fallback.coverUrl;
+
+  const charsRoot = document.getElementById('characters');
+  const charsSnap = await getDocs(collection(db, 'characters'));
+  const chars = charsSnap.docs
+    .map(d => ({ id:d.id, ...d.data() }))
+    .filter(c => !novelId || c.novelId === novelId);
+
+  charsRoot.innerHTML = '';
+  if (!chars.length) empty(charsRoot, 'لا توجد شخصيات مضافة بعد.');
+  for (const c of chars) {
+    const el = document.createElement('div');
+    el.className = 'character';
+    el.innerHTML = `${c.imageUrl ? `<img src="${esc(c.imageUrl)}" alt="${esc(c.name)}">` : ''}<h3>${esc(c.name || 'بدون اسم')}</h3><p>${esc(c.description || '')}</p>`;
+    charsRoot.appendChild(el);
+  }
+
+  const chaptersRoot = document.getElementById('chapters');
+  const chSnap = await getDocs(collection(db, 'chapters'));
+  const chapters = chSnap.docs
+    .map(d => ({ id:d.id, ...d.data() }))
+    .filter(c => !novelId || c.novelId === novelId);
+
+  chapters.sort((a,b) => {
+    const an = a.number ?? 999999;
+    const bn = b.number ?? 999999;
+    if (an !== bn) return an - bn;
+    const at = a.createdAt?.seconds ?? 0;
+    const bt = b.createdAt?.seconds ?? 0;
+    return at - bt;
+  });
+
+  chaptersRoot.innerHTML = '';
+  let first = '';
+  if (!chapters.length) empty(chaptersRoot, 'لا توجد فصول مضافة بعد.');
+  for (const c of chapters) {
+    const a = document.createElement('a');
+    a.href = 'chapter.html?id=' + encodeURIComponent(c.id);
+    a.innerHTML = `<button>${esc(c.title || 'فصل')}</button>`;
+    chaptersRoot.appendChild(a);
+    if (!first) first = a.href;
+  }
+  document.getElementById('startLink').href = first || (novelId === 'fallback-aurora' ? 'chapter1.html' : '#');
+} catch (e) {
+  console.error(e);
+  document.getElementById('description').textContent = fallback.description;
+}
+</script>
 </body>
-
 </html>

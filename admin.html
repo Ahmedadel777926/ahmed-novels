@@ -1,0 +1,86 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>لوحة التحكم - أحمد Novels</title>
+<link rel="stylesheet" href="style.css">
+<style>
+.admin-wrap{max-width:1000px;margin:auto;padding:30px 20px 60px}
+.admin-box{background:#1c1c1c;border-radius:20px;padding:25px;margin:20px 0;border:1px solid #333}
+.admin-box h2{color:#f0c75e}
+.admin-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(240px,1fr));gap:15px}
+.admin-box input,.admin-box textarea,.admin-box select{width:100%;padding:12px;border-radius:12px;border:1px solid #444;background:#111;color:#fff;margin:7px 0 12px;font-size:16px}
+.admin-box textarea{min-height:140px;resize:vertical}
+.admin-actions{display:flex;gap:10px;flex-wrap:wrap}
+.admin-status{color:#aaa;margin:8px 0}
+.hidden{display:none!important}
+.item-row{background:#151515;padding:12px;border-radius:14px;margin:8px 0;display:flex;justify-content:space-between;gap:10px;align-items:center;flex-wrap:wrap}
+.small-btn{padding:8px 16px;font-size:14px}.danger-btn{border-color:#9b3232!important;color:#ffb1b1!important}
+.preview-img{width:100px;height:130px;object-fit:cover;border-radius:10px;margin-top:5px}
+</style>
+</head>
+<body>
+<header><h1>⚙️ لوحة التحكم</h1><p>إدارة روايات Ahmed Novels</p></header>
+<div class="admin-wrap">
+  <div id="loginBox" class="admin-box">
+    <h2>تسجيل الدخول</h2>
+    <input id="email" type="email" placeholder="البريد الإلكتروني">
+    <input id="password" type="password" placeholder="كلمة المرور">
+    <button id="loginBtn">دخول</button>
+    <div id="loginStatus" class="admin-status"></div>
+  </div>
+
+  <div id="panel" class="hidden">
+    <div class="admin-box">
+      <div class="admin-actions" style="justify-content:space-between;align-items:center">
+        <h2 style="margin:0">إضافة / تعديل رواية</h2>
+        <button id="logoutBtn" class="small-btn">تسجيل الخروج</button>
+      </div>
+      <input id="novelId" type="hidden">
+      <label>اسم الرواية</label><input id="novelTitle" placeholder="مثال: أورورا: صعود نبيل">
+      <label>وصف الرواية</label><textarea id="novelDescription" placeholder="وصف مختصر"></textarea>
+      <label>صورة الغلاف</label><input id="novelCover" type="file" accept="image/*">
+      <img id="novelPreview" class="preview-img hidden">
+      <div class="admin-actions"><button id="saveNovel">حفظ الرواية</button><button id="clearNovel" class="small-btn">تفريغ</button></div>
+      <div id="novelStatus" class="admin-status"></div>
+    </div>
+
+    <div class="admin-box">
+      <h2>إضافة فصل</h2>
+      <label>الرواية</label><select id="chapterNovel"></select>
+      <label>عنوان الفصل</label><input id="chapterTitle" placeholder="الفصل الأول: بداية الرحلة">
+      <label>محتوى الفصل</label><textarea id="chapterContent" placeholder="اكتب كل فقرة في سطر مستقل"></textarea>
+      <button id="saveChapter">حفظ الفصل</button>
+      <div id="chapterStatus" class="admin-status"></div>
+    </div>
+
+    <div class="admin-box">
+      <h2>إضافة شخصية</h2>
+      <label>الرواية</label><select id="characterNovel"></select>
+      <label>اسم الشخصية</label><input id="characterName" placeholder="كايدن براين">
+      <label>الوصف</label><textarea id="characterDescription"></textarea>
+      <label>صورة الشخصية</label><input id="characterImage" type="file" accept="image/*">
+      <button id="saveCharacter">حفظ الشخصية</button>
+      <div id="characterStatus" class="admin-status"></div>
+    </div>
+
+    <div class="admin-box">
+      <h2>الروايات الحالية</h2>
+      <div id="novelsList">جارٍ التحميل...</div>
+    </div>
+
+    <div class="admin-box">
+      <h2>إدارة الفصول</h2>
+      <div id="chaptersList">جارٍ التحميل...</div>
+    </div>
+
+    <div class="admin-box">
+      <h2>إدارة الشخصيات</h2>
+      <div id="charactersList">جارٍ التحميل...</div>
+    </div>
+  </div>
+</div>
+<script type="module" src="admin.js"></script>
+</body>
+</html>

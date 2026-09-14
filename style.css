@@ -195,3 +195,30 @@ body {
     border-radius: 15px;
     margin-bottom: 15px;
 }
+
+.chapter {
+    max-width: 900px;
+    margin: auto;
+    padding: 30px 25px 70px;
+}
+
+.chapter h2 {
+    color: #f0c75e;
+    text-align: center;
+    font-size: 32px;
+    margin-bottom: 35px;
+}
+
+.chapter p {
+    color: #ddd;
+    font-size: 20px;
+    line-height: 2;
+    margin: 0 0 24px;
+}
+
+.chapters {
+    display: flex;
+    justify-content: center;
+    gap: 12px;
+    flex-wrap: wrap;
+}

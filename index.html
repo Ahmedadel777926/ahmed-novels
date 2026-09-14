@@ -1,82 +1,58 @@
 <!DOCTYPE html>
 <html lang="ar" dir="rtl">
-
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>مكتبة الروايات</title>
-
-    <link rel="stylesheet" href="style.css">
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>مكتبة الروايات</title>
+<link rel="stylesheet" href="style.css">
 </head>
-
-
 <body>
-
 <header>
-    <h1>📚 مكتبة الروايات</h1>
-   <p>✨ اكتشف عوالم الكاتب أحمد، حيث تولد الحكايات وتُصنع الأساطير وتبدأ رحلات شخصيات لا تُنسى.</p>
+  <h1>📚 مكتبة الروايات</h1>
+  <p>✨ اكتشف عوالم الكاتب أحمد، حيث تولد الحكايات وتُصنع الأساطير وتبدأ رحلات شخصيات لا تُنسى.</p>
 </header>
 
-
-<section class="books">
-
-
-    <div class="card">
-
-        <img src="images/aurora.jpeg">
-
-        <h2>أورورا: صعود نبيل</h2>
-
-        <p>
-            رحلة كايدن براين نحو تغيير العالم وإنقاذ الفقراء.
-        </p>
-
-     <a href="aurora.html">
-    <button>اقرأ الآن</button>
-</a>
-
-    </div>
-
-
-
-    <div class="card">
-
-        <img src="images/memories.jpeg">
-
-        <h2>قرار الذكريات</h2>
-
-        <p>
-            قصة الغموض والذكريات المفقودة.
-        </p>
-
-        <button>
-            اقرأ الآن
-        </button>
-
-    </div>
-
-
-
-    <div class="card">
-
-        <img src="images/agent_zero.jpeg">
-
-        <h2>العميل صفر</h2>
-
-        <p>
-            عميل سري يخوض أخطر المهمات.
-        </p>
-
-        <button>
-            اقرأ الآن
-        </button>
-
-    </div>
-
-
+<section class="books" id="books">
+  <p style="color:#aaa">جارٍ تحميل الروايات...</p>
 </section>
 
+<script type="module">
+import { db, collection, getDocs } from './site.js';
 
+const root = document.getElementById('books');
+const esc = s => String(s ?? '').replace(/[&<>'"]/g, c => ({
+  '&':'&amp;', '<':'&lt;', '>':'&gt;', "'":'&#39;', '"':'&quot;'
+}[c]));
+
+try {
+  const snap = await getDocs(collection(db, 'novels'));
+  const novels = snap.docs.map(d => ({ id: d.id, ...d.data() }));
+  novels.sort((a,b) => {
+    const at = a.createdAt?.seconds ?? 0;
+    const bt = b.createdAt?.seconds ?? 0;
+    return bt - at;
+  });
+
+  root.innerHTML = '';
+  if (!novels.length) {
+    root.innerHTML = '<p style="color:#aaa">لا توجد روايات مضافة بعد.</p>';
+  } else {
+    for (const n of novels) {
+      const card = document.createElement('div');
+      card.className = 'card';
+      card.innerHTML = `
+        <img src="${esc(n.coverUrl || 'images/aurora.jpeg')}" alt="${esc(n.title || 'رواية')}">
+        <h2>${esc(n.title || 'بدون اسم')}</h2>
+        <p>${esc(n.description || '')}</p>
+        <a href="aurora.html?id=${encodeURIComponent(n.id)}"><button>اقرأ الآن</button></a>
+      `;
+      root.appendChild(card);
+    }
+  }
+} catch (e) {
+  console.error(e);
+  root.innerHTML = '<p style="color:#aaa">تعذر تحميل الروايات. تأكد من اتصال Firebase.</p>';
+}
+</script>
 </body>
-
 </html>
