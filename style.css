@@ -299,7 +299,7 @@ body.aurora-reading-page {
         radial-gradient(circle at 85% 70%, rgba(134, 76, 27, .07), transparent 32%),
         linear-gradient(180deg, #080706 0%, #0d0b09 35%, #100e0c 100%);
     overflow-x: hidden;
-    cursor:url('images/aurora-sword.svg') 8 8, auto;
+    cursor:url('images/aurora-sword.svg') 8 8, auto!important;
 }
 
 body.aurora-world::before,
@@ -322,7 +322,7 @@ body.aurora-reading-page::before {
 .aurora-world button,
 .aurora-reading-page a,
 .aurora-reading-page button {
-    cursor:url('images/aurora-sword.svg') 8 8, auto;
+    cursor:url('images/aurora-sword.svg') 8 8, auto!important;
 }
 
 .aurora-atmosphere,
@@ -1105,6 +1105,3 @@ body.aurora-hovering .aurora-cursor-glow {
 }
 
 
-/* Aurora sword cursor: direct asset */
-body{cursor:url('images/aurora-sword.svg') 8 8, auto!important;}
-a,button,input,textarea,select{cursor:url('images/aurora-sword.svg') 8 8, pointer!important;}
