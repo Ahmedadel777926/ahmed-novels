@@ -52,12 +52,18 @@ try {
   } else {
     for (const n of novels) {
       const card = document.createElement('div');
+      const titleText = String(n.title || '');
+      const isAgentZero = /العميل\s*صفر|مطاردة\s*صفر/i.test(titleText);
+      const isNerval = /نيرفال|زافيريون/i.test(titleText);
+      const isDecision = /قرار\s*الذكريات/i.test(titleText);
+      const targetPage = isDecision ? 'decision_memories.html' : (isNerval ? 'nerval.html' : (isAgentZero ? 'agent_zero.html' : 'aurora.html'));
+      const coverDefault = isDecision ? 'images/decision-memory-cover.jpg' : (isAgentZero ? 'images/agent-zero-cover.jpg' : (isNerval ? 'images/nerval-cover.jpeg' : 'images/aurora.jpeg'));
       card.className = 'card';
       card.innerHTML = `
-        <img src="${esc(n.coverUrl || 'images/aurora.jpeg')}" alt="${esc(n.title || 'رواية')}">
+        <img src="${esc(n.coverUrl || coverDefault)}" alt="${esc(n.title || 'رواية')}">
         <h2>${esc(n.title || 'بدون اسم')}</h2>
         <p>${esc(n.description || '')}</p>
-        <a href="aurora.html?id=${encodeURIComponent(n.id)}"><button>اقرأ الآن</button></a>
+        <a href="${targetPage}?id=${encodeURIComponent(n.id)}"><button>اقرأ الآن</button></a>
       `;
       root.appendChild(card);
     }

@@ -63,6 +63,75 @@ function setupCloudinaryUpload(buttonId, inputId, previewId, label) {
 const $ = id => document.getElementById(id);
 const setStatus = (id, msg) => { const el = $(id); if (el) el.textContent = msg; };
 
+const THEME_TEXT_PRESETS = {
+  aurora: {
+    tagline:'حين تسقط الإمبراطوريات… لا تسقط ذكرياتها.',
+    worldKicker:'The World', worldTitle:'قبل أن يسقط العرش', worldText:'في أورورا، لا تدور المعارك حول السيوف وحدها؛ كل تحالف وكل قرار يترك أثره على من سيأتي بعده.',
+    charactersKicker:'Figures of the Era', charactersTitle:'وجوه صنعت عصرًا', charactersText:'ليست الشخصيات زينة للمشهد؛ لكل واحد منها علاقة مختلفة بالسلطة، والخسارة، وما سيبقى بعد انتهاء الحرب.',
+    chaptersKicker:'Imperial Archives', chaptersTitle:'سجلات الإمبراطورية', chaptersText:'كل فصل هو سجل جديد في قصة السلطة، التمرد، والآثار التي لا تنتهي بمجرد انتهاء المعركة.',
+    eraLabel:'The Imperial Era', eraMotto:'Power • Sacrifice • Legacy',
+    mapLabels:'فيوري | جينوا | أندورا | إندلاند | مملكة السلام'
+  },
+  agent_zero: {
+    kicker:'CLASSIFIED FILE 00 • EGYPTIAN SPY NOIR', tagline:'رجل أعمال في وضح النهار… وعميل لا يعرف أحد اسمه الحقيقي في الظلام.',
+    missionBtn:'ملف المهمة', charactersBtn:'ملفات الشخصيات', status:'STATUS: ACTIVE', identity:'IDENTITY: ZERO → ONE', location:'LOCATION: EGYPT / LONDON',
+    caseKicker:'CASE FILE', codenameLabel:'CODENAME', codename:'ZERO', coverLabel:'PUBLIC COVER', cover:'Horizon', leadLabel:'PRIMARY LEAD', lead:'إبراهيم عادل', threatLabel:'THREAT', threat:'المنظمة البريطانية',
+    doubleKicker:'Double Life', doubleTitle:'حياتان لشخص واحد', doubleText:'هلال لا يترك حياته القديمة تمامًا؛ هو يتنقل بين العائلة، الشركة، والمهمات، وكل انتقال يكشف جانبًا مختلفًا منه.',
+    publicIdentity:'PUBLIC IDENTITY', publicName:'هلال', publicText:'رجل أعمال شاب يقود شركة Horizon المتخصصة في الذكاء الاصطناعي والروبوتات والأنظمة الذكية، قريب من عائلته ويبحث عن مساحة لحياة طبيعية.',
+    classifiedIdentity:'CLASSIFIED IDENTITY', agentName:'العميل صفر', agentText:'عميل ميداني يجمع بين القتال، اللغات، التقنية، والتحليل، ويتعامل مع المهام تحت ضغط مستمر دون أن يفقد علاقته بالناس من حوله.',
+    personnelKicker:'Personnel Records', personnelTitle:'ملفات الشخصيات', personnelText:'كل شخصية مرتبطة بجانب من الصراع بين الحياة الطبيعية وعالم العملاء.',
+    boardKicker:'Investigation Board', boardTitle:'القضية التي فتحت كل الأبواب', boardText:'اسم طفل عمره 11 عامًا يقود التحقيق إلى سلسلة جرائم، منظمة بريطانية، عينة غامضة، وصراع يتجاوز حدود مصر.',
+    clueTitle:'إبراهيم عادل', clue1:'سبعة أشخاص قُتلوا باسم إبراهيم عادل.', clue2:'عينة غامضة أصبحت هدفًا لمنظمات متعددة.', clue3:'خطة مرتبطة بمياه النيل تكشف اتساع الخطر.', clue4:'ظهور العميل X يضع سؤالًا عن الماضي فوق كل مهمة جديدة.',
+    orgTitle:'المنظمات', org1:'المنظمة المصرية السرية', org1Tag:'HOME', org2:'المنظمة البريطانية', org2Tag:'THREAT', org3:'كلاب أوساكا', org3Tag:'UNKNOWN', org4:'العميل X', org4Tag:'LEGACY',
+    logsKicker:'Mission Logs', logsTitle:'سجلات المطاردة', logsText:'الفصول تُسحب مباشرة من Firestore وتُعرض كملفات مهمة بدل قائمة تقليدية.'
+  },
+  nerval: {
+    worldKicker:'THE OTHER WORLD', worldTitle:'عالم لا ينتظر بطلًا مستعدًا', worldText1:'يبدأ كل شيء من المنصورة، مع آدم؛ شاب محطم يحاول الهروب من حياة أثقلته بالفشل والسخرية والخوف. ثم يفتح كتابًا غامضًا، فيجد نفسه في نيرفال، وسط حرب بين البشر والتنانين.', worldText2:'هنا لا تمنح النبوءة آدم القوة فقط، بل تضع أمامه سؤالًا أصعب: هل يصبح الإنسان قويًا لأنه اختير… أم لأنه يختار أن يتحمل المسؤولية؟', portal:'بوابة العبور', portalText:'كتاب غامض • نبوءة قديمة • التنين الأول',
+    dragonKicker:'THE FIRST DRAGON', prophecyTitle:'نبوءة التنين الأول', prophecyText:'سيأتي شخص من عالم آخر يحمل قوة التنين الأول في داخله، ويكون قادرًا على إعادة التوازن بين قوى العالم.', carrierLabel:'الحامل', carrier:'زافيريون', balance:'التوازن', ancientKicker:'THE ANCIENT ONE', dragonTitle:'التنين الأول', dragonName:'زافيريون', dragonText:'تنين أسطوري رمادي بعينين ذهبيتين. لا يرى نفسه سلاحًا تابعًا لآدم، بل شريكًا يختبر استحقاقه. تظهر روحه بسبب اللعنة، بينما يبقى الجسد المفقود جزءًا من الطريق الذي ينتظر آدم.', traits:'حكمة | قوة | اختبار | رابط',
+    chosenKicker:'THE CHOSEN & THE WITNESSES', chosenTitle:'سجلات نيرفال', chosenText:'وجوه صنعتها النبوءة، الحرب، والخيار.',
+    adamRole:'THE CARRIER', adam:'آدم', adamText:'شاب من عالم آخر يحمل قوة التنين الأول، ويبدأ رحلته وهو خائف وغير واثق من نفسه.', lianaRole:'THE BELIEVER', liana:'ليانا', lianaText:'محاربة تؤمن بآدم قبل أن يؤمن هو بنفسه.', zariaRole:'QUEEN OF LIGHT', zaria:'زاريا', zariaText:'ملكة تنتظر ظهور الحامل وتتحمل مسؤولية مملكة النور.', aldRole:'THE WINGED', ald:'ألدريوس', aldText:'محارب غامض بقوة هائلة وأجنحة ضخمة، يرى ما لم يستيقظ في آدم بعد.', nirRole:'ROYAL GUARD', nir:'نيرافيا', nirText:'محاربة جديدة تمتلك تنينًا أرجوانيًا وتحاول إثبات نفسها.', ildRole:'THE RESISTANCE', ild:'إيلدار', ildText:'قائد مقاومة عجوز يؤمن بالنبوءة وبالطريق الذي ينتظر الحامل.',
+    controlLabel:'السيطرة', controlText:'هل يصبح التنين مجرد أداة في يد الإنسان؟', pactTitle:'عهد الدم أم عهد الثقة؟', pactText:'آدم يرى أن التضحية الحقيقية تأتي من الثقة والصداقة، لا من إجبار كائن حي على الموت.', partnershipLabel:'الشراكة', partnershipText:'هل يمكن أن تكون القوة رابطة بين كائنين متساويين؟',
+    chroniclesKicker:'CHRONICLES OF NERVAL', chroniclesTitle:'سجلات الفصول', chroniclesText:'رحلة آدم من الهروب… إلى أول وعد.', arrival:'THE ARRIVAL', arrivalTitle:'البداية', promise:'THE PROMISE', promiseTitle:'لن أعدك أنني سأصبح الأقوى.', promiseText:'لكنني سأبذل كل ما أستطيع.', start:'ابدأ الرحلة'
+  }
+  ,decision_memories:{
+    kicker:'MEMORY FRACTURE', tagline:'بين ما نسيه الماضي… وما يختاره الحاضر.', worldKicker:'THE FRACTURED REALMS', worldTitle:'عالم انقسمت فيه الذكريات', worldText:'رحلة بين ممالك البشر والإلف والجحيم، حيث كل بوابة قد تكشف جزءًا من الحقيقة… أو تخفيها أكثر.', portal:'بوابة الذكريات', portalText:'ممالك متباعدة • حروب قديمة • أسرار لم تمت', heroAction:'ابدأ الرحلة', charactersAction:'سجلات الشخصيات', charactersKicker:'THE ONES WHO REMEMBER', charactersTitle:'وجوه تحمل آثار الماضي', charactersText:'شخصيات لا نعرف إن كانت تهرب من ماضيها… أم تتجه نحوه.', memoryKicker:'THE LOST SELF', memoryTitle:'من كان آريان؟', memoryText:'إمبراطور مملكة الجحيم وسيد النار… أم الرجل الذي اختار أن يبدأ من جديد؟', mahinTitle:'لغز ماهين', mahinText:'رجل فقد ذاكرته، لكن قوته ترفض أن تنسى.', dariusTitle:'داريوس', dariusText:'اسم من الحرب القديمة يعود كلما اقتربت الحقيقة.', dualityLeft:'الماضي', dualityLeftText:'أسرار، أخطاء، وذكريات لم تُدفن.', dualityRight:'الحاضر', dualityRightText:'اختيارات جديدة قد تغيّر معنى كل ما سبق.', chaptersKicker:'CHRONICLES OF MEMORY', chaptersTitle:'سجلات الرحلة', chaptersText:'كل فصل يفتح بابًا جديدًا… ولا يضمن أن تغلقه كما فتحته.', finalKicker:'THE FINAL QUESTION', finalTitle:'هل يحددك ماضيك؟', finalText:'أم أن ما تختاره الآن هو القرار الذي يصنع حقيقتك؟', start:'دخول السجلات', characterRole:'MEMORY RECORD', chapterKicker:'MEMORY CHRONICLE'
+  }
+};
+
+let themeNovelsCache = new Map();
+function themePresetFor(title=''){
+  const t=String(title).toLowerCase();
+  if(t.includes('نيرفال')||t.includes('زافيريون')||t.includes('nerval')) return THEME_TEXT_PRESETS.nerval;
+  if(t.includes('العميل صفر')||t.includes('مطاردة صفر')||t.includes('agent zero')) return THEME_TEXT_PRESETS.agent_zero;
+  if(t.includes('قرار الذكريات')||t.includes('decision memories')) return THEME_TEXT_PRESETS.decision_memories;
+  return THEME_TEXT_PRESETS.aurora;
+}
+function renderThemeEditor(texts={}, title=''){
+  const preset=themePresetFor(title); const merged={...preset,...(texts||{})}; const wrap=$('themeEditor'); if(!wrap) return;
+  wrap.innerHTML='';
+  Object.entries(merged).forEach(([key,value])=>{
+    const box=document.createElement('div'); box.dataset.themeTextKey=key;
+    const label=document.createElement('label'); label.textContent=key;
+    const area=document.createElement('textarea'); area.rows=String(value).length>90?3:2; area.value=value||''; area.dataset.themeTextKey=key;
+    box.append(label,area); wrap.appendChild(box);
+  });
+}
+function readThemeTexts(){ const out={}; document.querySelectorAll('#themeEditor textarea[data-theme-text-key]').forEach(el=>out[el.dataset.themeTextKey]=el.value.trim()); return out; }
+function readThemeForm(){
+  return { texts:readThemeTexts(),
+    primaryColor:$('themePrimaryColor')?.value||'', secondaryColor:$('themeSecondaryColor')?.value||'', cursorColor:$('themeCursorColor')?.value||'',
+    cursorStyle:$('themeCursorStyle')?.value||'dragon', backgroundUrl:normalizeImageUrl($('themeBackgroundUrl')?.value), effects:$('themeEffects')?.value||'on' };
+}
+function fillThemeForm(t, title=''){
+  const x=t||{}; renderThemeEditor(x.texts||{},title);
+  const set=(id,v)=>{if($(id)) $(id).value=v||''};
+  const isDecision=/قرار\s*الذكريات/i.test(title); const isAgent=/العميل\s*صفر|مطاردة\s*صفر/i.test(title); const isNerval=/نيرفال|زافيريون/i.test(title);
+  set('themePrimaryColor',x.primaryColor||(isDecision?'#8d7cff':isNerval?'#e8752d':isAgent?'#d9e0e8':'#e8b45d')); set('themeSecondaryColor',x.secondaryColor||(isDecision?'#9cc8ff':isNerval?'#d9d6ce':isAgent?'#b8c2cc':'#d9d6ce')); set('themeCursorColor',x.cursorColor||(isDecision?'#d9e7ff':isNerval?'#ff7b2f':'#eeeeee'));
+  set('themeCursorStyle',x.cursorStyle||(isDecision?'memory':isNerval?'dragon':isAgent?'crosshair':'dragon')); set('themeBackgroundUrl',x.backgroundUrl); set('themeEffects',x.effects||'on');
+}
+function clearThemeForm(){fillThemeForm({}, $('themeNovel')?.selectedOptions?.[0]?.textContent||'');}
+function loadThemeNovel(id){ const n=themeNovelsCache.get(id); if(!n){clearThemeForm();return;} $('novelId').value=id; fillThemeForm(n.theme||{},n.title||''); setStatus('themeStatus','جاري تعديل ثيم: '+(n.title||'')); }
+
 function normalizeImageUrl(value) {
   const url = String(value || '').trim();
   if (!url) return '';
@@ -118,7 +187,10 @@ async function refreshNovels() {
   const list = $('novelsList');
   const select1 = $('chapterNovel');
   const select2 = $('characterNovel');
+  const themeSelect = $('themeNovel');
+  themeNovelsCache = new Map();
   list.innerHTML = '';
+  if(themeSelect) themeSelect.innerHTML = '<option value="">اختر الرواية</option>';
   select1.innerHTML = '<option value="">اختر الرواية</option>';
   select2.innerHTML = '<option value="">اختر الرواية</option>';
 
@@ -130,6 +202,8 @@ async function refreshNovels() {
 
   snap.forEach(d => {
     const n = d.data();
+    themeNovelsCache.set(d.id,{id:d.id,...n});
+    if(themeSelect) themeSelect.add(new Option(n.title || 'بدون اسم', d.id));
     select1.add(new Option(n.title || 'بدون اسم', d.id));
     select2.add(new Option(n.title || 'بدون اسم', d.id));
 
@@ -143,6 +217,7 @@ async function refreshNovels() {
       $('novelTitle').value=n.title||'';
       $('novelDescription').value=n.description||'';
       $('novelCoverUrl').value=n.coverUrl||'';
+      if($('themeNovel')) $('themeNovel').value=d.id; fillThemeForm(n.theme || {}, n.title || '');
       $('novelPreview').src=n.coverUrl||'';
       $('novelPreview').classList.toggle('hidden', !n.coverUrl);
       $('novelStatus').textContent='وضع التعديل: '+(n.title||'الرواية');
@@ -153,6 +228,7 @@ async function refreshNovels() {
     del.onclick=()=>deleteNovel(d.id, n.title || 'هذه الرواية');
     actions.appendChild(edit); actions.appendChild(del); row.appendChild(actions); list.appendChild(row);
   });
+  if(themeSelect){ themeSelect.onchange=()=>loadThemeNovel(themeSelect.value); if(themeSelect.value) loadThemeNovel(themeSelect.value); }
   await refreshChaptersAndCharacters();
 }
 
@@ -294,6 +370,7 @@ $('clearNovel').onclick=()=>{
   $('novelTitle').value='';
   $('novelDescription').value='';
   $('novelCoverUrl').value='';
+  clearThemeForm();
   $('novelPreview').removeAttribute('src');
   $('novelPreview').classList.add('hidden');
   $('novelStatus').textContent='';
@@ -307,19 +384,28 @@ $('saveCloudinaryPreset').onclick = ()=>{ const v=$('cloudinaryPreset').value.tr
 setupCloudinaryUpload('uploadNovelCover','novelCoverUrl','novelPreview','غلاف الرواية');
 setupCloudinaryUpload('uploadCharacterImage','characterImageUrl','characterPreview','صورة الشخصية');
 
+$('saveTheme').onclick=async()=>{
+  const id=$('themeNovel')?.value || $('novelId').value;
+  if(!id) return setStatus('themeStatus','اختار الرواية من قائمة الثيم أولًا.');
+  try{ setStatus('themeStatus','جاري حفظ الثيم...'); await updateDoc(doc(db,'novels',id),{theme:readThemeForm()}); setStatus('themeStatus','تم حفظ الثيم ✅'); await refreshNovels(); }
+  catch(e){ console.error(e); setStatus('themeStatus','فشل حفظ الثيم: '+(e.code||'تأكد من الصلاحيات.')); }
+};
+$('clearTheme').onclick=()=>{ const n=themeNovelsCache.get($('themeNovel')?.value); fillThemeForm(n?.theme||{},n?.title||''); };
+
 $('saveNovel').onclick=async()=>{
   try{
     const title=$('novelTitle').value.trim();
     const description=$('novelDescription').value.trim();
     const id=$('novelId').value;
     const coverUrl=normalizeImageUrl($('novelCoverUrl').value);
+    const theme=readThemeForm();
     if(!title) return setStatus('novelStatus','اكتب اسم الرواية أولًا.');
     if($('novelCoverUrl').value.trim() && !coverUrl) return setStatus('novelStatus','رابط صورة الغلاف لازم يبدأ بـ https:// أو http://');
     setStatus('novelStatus','جاري الحفظ...');
     if(id){
-      await updateDoc(doc(db,'novels',id),{title,description,coverUrl});
+      await updateDoc(doc(db,'novels',id),{title,description,coverUrl,theme});
     } else {
-      await addDoc(collection(db,'novels'),{title,description,coverUrl,createdAt:serverTimestamp()});
+      await addDoc(collection(db,'novels'),{title,description,coverUrl,theme,createdAt:serverTimestamp()});
     }
     setStatus('novelStatus','تم حفظ الرواية ✅');
     $('clearNovel').click();

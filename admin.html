@@ -11,7 +11,7 @@
 .admin-box h2{color:#f0c75e}
 .admin-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(240px,1fr));gap:15px}
 .admin-box input,.admin-box textarea,.admin-box select{width:100%;padding:12px;border-radius:12px;border:1px solid #444;background:#111;color:#fff;margin:7px 0 12px;font-size:16px}
-.admin-box textarea{min-height:140px;resize:vertical}
+.admin-box textarea{min-height:140px;resize:vertical}.admin-box input[type="color"]{height:48px;padding:4px;cursor:pointer}
 .admin-actions{display:flex;gap:10px;flex-wrap:wrap}
 .admin-status{color:#aaa;margin:8px 0}
 .hidden{display:none!important}
@@ -51,6 +51,23 @@
       <label>صورة الغلاف</label><div class="admin-actions"><button type="button" id="uploadNovelCover" class="small-btn">اختيار صورة من الجهاز</button><input id="novelCoverUrl" type="url" placeholder="أو ضع رابط صورة مباشرًا"></div><div class="hint">اختار صورة AI من جهازك وسيتم رفعها إلى Cloudinary ثم حفظ رابطها تلقائيًا. لا تحتاج Firebase Storage.</div>
       <img id="novelPreview" class="preview-img hidden">
       <div class="admin-actions"><button id="saveNovel">حفظ الرواية</button><button id="clearNovel" class="small-btn">تفريغ</button></div>
+    </div>
+
+    <div class="admin-box">
+      <h2>🎨 تخصيص ثيم الرواية</h2>
+      <div class="hint">اختار الرواية أولًا. بعدها هتظهر لك النصوص القديمة الموجودة في تصميمها وتقدر تعدّلها كلها وتحفظها.</div>
+      <label>اختر الرواية</label><select id="themeNovel"></select>
+      <div id="themeEditor" class="admin-grid"></div>
+      <div class="admin-grid">
+        <div><label>اللون الأساسي</label><input id="themePrimaryColor" type="color" value="#e8752d"></div>
+        <div><label>اللون الثانوي</label><input id="themeSecondaryColor" type="color" value="#d9d6ce"></div>
+        <div><label>لون الماوس</label><input id="themeCursorColor" type="color" value="#eeeeee"></div>
+        <div><label>شكل الماوس</label><select id="themeCursorStyle"><option value="dragon">عين التنين</option><option value="memory">شظية الذاكرة</option><option value="crosshair">تصويب</option><option value="dot">نقطة مضيئة</option></select></div>
+        <div><label>صورة خلفية الثيم (رابط)</label><input id="themeBackgroundUrl" type="url" placeholder="https://..."></div>
+        <div><label>المؤثرات</label><select id="themeEffects"><option value="on">مفعلة</option><option value="off">بدون مؤثرات</option></select></div>
+      </div>
+      <div class="admin-actions"><button id="saveTheme">حفظ تخصيص الثيم</button><button id="clearTheme" class="small-btn">تفريغ إعدادات الثيم</button></div>
+      <div id="themeStatus" class="admin-status"></div>
       <div id="novelStatus" class="admin-status"></div>
     </div>
 

@@ -3,41 +3,140 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>الفصل</title>
+<meta name="theme-color" content="#0a0908">
+<title>أورورا — الفصل</title>
 <link rel="stylesheet" href="style.css">
 </head>
-<body>
-<header>
-  <h1 id="siteTitle">⚔️ الرواية</h1>
-  <p id="chapterTitle"></p>
-</header>
-<section class="chapter">
-  <h2 id="heading"></h2>
-  <div id="content"></div>
-</section>
+<body class="aurora-reading-page">
+<div class="aurora-atmosphere" aria-hidden="true"></div>
+<div class="aurora-cursor-glow" aria-hidden="true"></div>
+<div class="aurora-progress" aria-hidden="true"><div class="aurora-progress-bar" id="progressBar"></div></div>
+
+<div class="aurora-reading-top">
+  <a class="aurora-reading-brand" href="aurora.html">⚔️ أورورا</a>
+  <div class="aurora-reading-tools">
+    <a class="aurora-tool" id="backLink" href="aurora.html">سجل الرواية</a>
+    <button class="aurora-tool" id="focusBtn" type="button">وضع التركيز</button>
+  </div>
+</div>
+
+<main class="aurora-reading-shell">
+  <header class="aurora-reading-head">
+    <p class="aurora-reading-eyebrow" id="siteTitle">Aurora • Imperial Archives</p>
+    <h1 class="aurora-reading-title" id="heading">الفصل</h1>
+    <p class="aurora-reading-subtitle" id="chapterTitle"></p>
+    <div class="aurora-rule"></div>
+  </header>
+
+  <article class="aurora-reading-paper">
+    <div id="content" class="aurora-reading-content"></div>
+  </article>
+</main>
+
+<nav class="aurora-reading-nav" aria-label="تنقل الفصول">
+  <a id="prevLink" href="#" hidden>← الفصل السابق</a>
+  <a id="nextLink" href="#" hidden>الفصل التالي →</a>
+</nav>
+
 <script type="module">
-import { db, getDoc, doc } from './site.js';
+import { db, getDoc, doc, collection, getDocs } from './site.js';
+
 const id = new URLSearchParams(location.search).get('id');
 const content = document.getElementById('content');
+const bar = document.getElementById('progressBar');
+
+function addAtmosphere() {
+  const root = document.querySelector('.aurora-atmosphere');
+  for (let i = 0; i < 16; i++) {
+    const ember = document.createElement('span');
+    ember.className = 'ember';
+    ember.style.setProperty('--left', `${Math.random() * 100}%`);
+    ember.style.setProperty('--duration', `${6 + Math.random() * 8}s`);
+    ember.style.setProperty('--delay', `${-Math.random() * 10}s`);
+    ember.style.setProperty('--drift', `${-60 + Math.random() * 120}px`);
+    root.appendChild(ember);
+  }
+}
+
+function initEffects() {
+  addAtmosphere();
+  const glow = document.querySelector('.aurora-cursor-glow');
+  if (glow && !matchMedia('(pointer: coarse)').matches) {
+    addEventListener('pointermove', e => {
+      glow.style.left = `${e.clientX}px`;
+      glow.style.top = `${e.clientY}px`;
+    }, { passive: true });
+  }
+  document.querySelectorAll('a, button').forEach(el => {
+    el.addEventListener('mouseenter', () => document.body.classList.add('aurora-hovering'));
+    el.addEventListener('mouseleave', () => document.body.classList.remove('aurora-hovering'));
+  });
+}
+
+function updateProgress() {
+  const docEl = document.documentElement;
+  const max = docEl.scrollHeight - innerHeight;
+  const pct = max > 0 ? Math.min(100, Math.max(0, (scrollY / max) * 100)) : 0;
+  bar.style.width = pct + '%';
+}
+
+initEffects();
+addEventListener('scroll', updateProgress, { passive: true });
+updateProgress();
+
+document.getElementById('focusBtn').addEventListener('click', () => {
+  document.body.classList.toggle('aurora-focus');
+});
+
 try {
   if (!id) throw new Error('missing');
   const snap = await getDoc(doc(db, 'chapters', id));
   if (!snap.exists()) throw new Error('missing');
-  const c = snap.data();
+  const c = { id: snap.id, ...snap.data() };
   const number = Number(c.number);
   const chapterLabel = Number.isFinite(number) && number > 0
     ? `الفصل ${number}: ${c.title || 'بدون عنوان'}`
     : (c.title || 'الفصل');
-  document.title = chapterLabel;
+
+  document.title = `${chapterLabel} — أورورا`;
+  document.getElementById('siteTitle').textContent = c.novelTitle || 'Aurora • Imperial Archives';
   document.getElementById('chapterTitle').textContent = chapterLabel;
-  document.getElementById('heading').textContent = chapterLabel;
+  document.getElementById('heading').textContent = c.title || chapterLabel;
+  if (c.novelId) document.getElementById('backLink').href = 'aurora.html?id=' + encodeURIComponent(c.novelId);
+
   content.innerHTML = '';
-  const paragraphs = String(c.content || '').split(/\n{2,}/);
+  const paragraphs = String(c.content || '').split(/\r?\n{2,}/);
   for (const text of paragraphs) {
     if (!text.trim()) continue;
     const p = document.createElement('p');
     p.textContent = text.trim();
     content.appendChild(p);
+  }
+
+  if (c.novelId) {
+    const chSnap = await getDocs(collection(db, 'chapters'));
+    const chapters = chSnap.docs.map(d => ({ id:d.id, ...d.data() }))
+      .filter(x => x.novelId === c.novelId)
+      .sort((a,b) => {
+        const an = a.number ?? 999999, bn = b.number ?? 999999;
+        if (an !== bn) return an - bn;
+        return (a.createdAt?.seconds ?? 0) - (b.createdAt?.seconds ?? 0);
+      });
+    const index = chapters.findIndex(x => x.id === c.id);
+    const prev = chapters[index - 1];
+    const next = chapters[index + 1];
+    const prevLink = document.getElementById('prevLink');
+    const nextLink = document.getElementById('nextLink');
+    if (prev) {
+      prevLink.hidden = false;
+      prevLink.href = 'chapter.html?id=' + encodeURIComponent(prev.id);
+      prevLink.textContent = `← ${prev.title || 'الفصل السابق'}`;
+    }
+    if (next) {
+      nextLink.hidden = false;
+      nextLink.href = 'chapter.html?id=' + encodeURIComponent(next.id);
+      nextLink.textContent = `${next.title || 'الفصل التالي'} →`;
+    }
   }
 } catch (e) {
   console.error(e);

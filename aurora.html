@@ -3,37 +3,99 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>الرواية</title>
+<meta name="theme-color" content="#0a0908">
+<title>أورورا: سقوط الإمبراطورية</title>
 <link rel="stylesheet" href="style.css">
 </head>
-<body>
-<header>
-  <h1 id="title">⚔️ الرواية</h1>
-  <p id="subtitle"></p>
-</header>
+<body class="aurora-world">
+<div class="aurora-atmosphere" aria-hidden="true"></div>
+<div class="aurora-cursor-glow" aria-hidden="true"></div>
 
-<section class="novel-page">
-  <img id="cover" class="cover" src="images/aurora.jpeg" alt="غلاف الرواية">
-  <h2>عن الرواية</h2>
-  <p id="description"></p>
+<div class="aurora-page-shell">
+  <nav class="aurora-topbar" aria-label="التنقل">
+    <a class="aurora-brand" href="index.html">Ahmed Novels</a>
+    <a class="aurora-nav-link" href="index.html">العودة للمكتبة</a>
+  </nav>
 
-  <h2>الشخصيات الرئيسية</h2>
-  <div class="characters" id="characters"></div>
+  <header class="aurora-hero">
+    <div class="aurora-hero-grid">
+      <div class="aurora-cover-wrap">
+        <img id="cover" class="aurora-cover" src="images/aurora.jpeg" alt="غلاف أورورا: سقوط الإمبراطورية">
+      </div>
 
-  <h2>📖 الفصول</h2>
-  <div class="chapters" id="chapters"></div>
+      <div class="aurora-hero-copy">
+        <div class="aurora-kicker">سجل الإمبراطورية • رواية فانتازيا سياسية</div>
+        <h1 id="title" class="aurora-title">أورورا<span>سقوط الإمبراطورية</span></h1>
+        <p class="aurora-quote">حين تسقط الإمبراطوريات… لا تسقط ذكرياتها.</p>
+        <p id="description" data-theme-key="introText" class="aurora-description">إمبراطورية عظيمة تتصدع من الداخل، ونبلاء يتصارعون على السلطة، وشاب يرى أن تغيير العالم لا يبدأ من العرش… بل من فهم الثمن.</p>
+        <div class="aurora-actions">
+          <a id="startLink" class="aurora-primary" href="chapter1.html">📖 ابدأ الرحلة</a>
+          <a class="aurora-secondary" href="#chapters">سجلات الفصول</a>
+        </div>
+      </div>
+    </div>
+  </header>
 
-  <a id="startLink" href="#"><button class="read-btn">📖 ابدأ القراءة</button></a>
-</section>
+  <div class="aurora-world-strip" aria-label="عالم الرواية">
+    <div class="aurora-world-caption">The Imperial Era</div>
+    <div class="aurora-realms">
+      <span class="aurora-realm">فيوري</span>
+      <span class="aurora-realm">جينوا</span>
+      <span class="aurora-realm">أندورا</span>
+      <span class="aurora-realm">إندلاند</span>
+      <span class="aurora-realm">مملكة السلام</span>
+    </div>
+    <div class="aurora-world-caption">Power • Sacrifice • Legacy</div>
+  </div>
+
+  <main class="aurora-novel-page">
+    <section class="aurora-section">
+      <div class="aurora-section-head">
+        <div>
+          <p class="aurora-section-kicker">The World</p>
+          <h2 data-theme-key="introTitle" class="aurora-section-title">قبل أن يسقط العرش</h2>
+        </div>
+        <p class="aurora-section-note">في أورورا، لا تدور المعارك حول السيوف وحدها؛ كل تحالف وكل قرار يترك أثره على من سيأتي بعده.</p>
+      </div>
+      <div class="aurora-lore-card">
+        <p class="aurora-lore-text">كايدن براين، أصغر أبناء عائلة نبيلة، لا يبدأ رحلته كأمير ولا كبطل مكتمل. يبدأ كإنسان يراقب عالمًا غير عادل ويحاول أن يفهم لماذا يسمح الأقوياء لأنفسهم بكل شيء. ومع اتساع الصراع، يصبح السؤال أكبر من تغيير نظام فاسد: هل يستطيع من يصل إلى السلطة أن يبقى إنسانًا وهو يدفع ثمن ما صنعه؟</p>
+      </div>
+    </section>
+
+    <section class="aurora-section" id="characters">
+      <div class="aurora-section-head">
+        <div>
+          <p class="aurora-section-kicker">Figures of the Era</p>
+          <h2 data-theme-key="charactersTitle" class="aurora-section-title">وجوه صنعت عصرًا</h2>
+        </div>
+        <p class="aurora-section-note">ليست الشخصيات زينة للمشهد؛ لكل واحد منها علاقة مختلفة بالسلطة، والخسارة، وما سيبقى بعد انتهاء الحرب.</p>
+      </div>
+      <div class="aurora-characters-grid" id="charactersRoot"></div>
+    </section>
+
+    <section class="aurora-section" id="chapters">
+      <div class="aurora-section-head">
+        <div>
+          <p class="aurora-section-kicker">Imperial Archives</p>
+          <h2 data-theme-key="chaptersTitle" class="aurora-section-title">سجلات الإمبراطورية</h2>
+        </div>
+        <p class="aurora-section-note">كل فصل هو سجل جديد في قصة السلطة، التمرد، والآثار التي لا تنتهي بمجرد انتهاء المعركة.</p>
+      </div>
+      <div class="aurora-chapters" id="chaptersRoot"></div>
+    </section>
+  </main>
+
+  <footer class="aurora-footer">⚔️ أورورا — ما يهم ليس فقط من وصل إلى العرش، بل ماذا فعل بثمن الوصول.</footer>
+</div>
 
 <script type="module">
-import { db, collection, getDocs, getDoc, query, where, doc } from './site.js';
+import { db, collection, getDocs, getDoc, doc } from './site.js';
 
 const id = new URLSearchParams(location.search).get('id');
 const fallback = {
   id: 'fallback-aurora',
-  title: 'أورورا: صعود نبيل',
-  description: 'في عالم تحكمه السلطة والفوارق بين الطبقات، تبدأ رحلة كايدن براين لاكتشاف الحقيقة، ومحاولة تغيير مصير العالم وإنقاذ من لا يملكون صوتًا.',
+  title: 'أورورا: سقوط الإمبراطورية',
+  description: 'إمبراطورية عظيمة تتصدع من الداخل، ونبلاء يتصارعون على السلطة، وشاب يرى أن تغيير العالم لا يبدأ من العرش… بل من فهم الثمن.',
   coverUrl: 'images/aurora.jpeg'
 };
 
@@ -41,7 +103,67 @@ const esc = s => String(s ?? '').replace(/[&<>'"]/g, c => ({
   '&':'&amp;', '<':'&lt;', '>':'&gt;', "'":'&#39;', '"':'&quot;'
 }[c]));
 
-const empty = (el, text) => { el.innerHTML = `<p style="color:#aaa">${text}</p>`; };
+const metaFor = (name = '') => {
+  const n = String(name).toLowerCase();
+  if (n.includes('كايدن') || n.includes('kaiden') || n.includes('براين')) return ['كايدن', 'محور الحكاية', 'kaiden'];
+  if (n.includes('فيونا') || n.includes('fiona') || n.includes('فيوناريا')) return ['فيونا', 'العقل والقلب', 'fiona'];
+  if (n.includes('ويليام') || n.includes('william')) return ['ويليام', 'إرث السيف', 'william'];
+  if (n.includes('مارجريت') || n.includes('margaret')) return ['مارجريت', 'ثمن الولاء', 'margaret'];
+  if (n.includes('رايدن') || n.includes('raiden')) return ['رايدن', 'المستقبل', 'raiden'];
+  if (n.includes('يوجين') || n.includes('eugene')) return ['يوجين', 'ما بعد الإرث', 'eugene'];
+  return ['', 'من وجوه الإمبراطورية', ''];
+};
+
+const DEFAULT_THEME_TEXTS = {"tagline":"حين تسقط الإمبراطوريات… لا تسقط ذكرياتها.","worldKicker":"The World","worldTitle":"قبل أن يسقط العرش","worldText":"في أورورا، لا تدور المعارك حول السيوف وحدها؛ كل تحالف وكل قرار يترك أثره على من سيأتي بعده.","charactersKicker":"Figures of the Era","charactersTitle":"وجوه صنعت عصرًا","charactersText":"ليست الشخصيات زينة للمشهد؛ لكل واحد منها علاقة مختلفة بالسلطة، والخسارة، وما سيبقى بعد انتهاء الحرب.","chaptersKicker":"Imperial Archives","chaptersTitle":"سجلات الإمبراطورية","chaptersText":"كل فصل هو سجل جديد في قصة السلطة، التمرد، والآثار التي لا تنتهي بمجرد انتهاء المعركة.","eraLabel":"The Imperial Era","eraMotto":"Power • Sacrifice • Legacy","mapLabels":"فيوري | جينوا | أندورا | إندلاند | مملكة السلام"}
+function applyThemeTextOverrides(theme={}) {
+  const overrides=theme.texts||{}; const defaults=DEFAULT_THEME_TEXTS; const lookup=new Map();
+  Object.keys(defaults).forEach(k=>{if(overrides[k]) lookup.set(String(defaults[k]),String(overrides[k]));});
+  if(!lookup.size) return;
+  const walker=document.createTreeWalker(document.body,NodeFilter.SHOW_TEXT); const nodes=[]; let n; while(n=walker.nextNode()) nodes.push(n);
+  nodes.forEach(node=>{const v=node.nodeValue.trim(); if(lookup.has(v)) node.nodeValue=node.nodeValue.replace(v,lookup.get(v));});
+ }
+
+function applyTheme(theme={}) {  applyThemeTextOverrides(theme);
+
+  const root=document.documentElement;
+  if(theme.primaryColor) root.style.setProperty('--aurora-accent',theme.primaryColor);
+  if(theme.secondaryColor) root.style.setProperty('--aurora-secondary',theme.secondaryColor);
+  if(theme.backgroundUrl) document.body.style.backgroundImage=`linear-gradient(rgba(10,9,8,.72),rgba(10,9,8,.88)),url("${theme.backgroundUrl}")`;
+  const t=theme.texts||{};
+  const map={tagline:'.aurora-hero p.aurora-description',worldKicker:'.aurora-world-kicker',worldTitle:'.aurora-world h2',worldText:'.aurora-world p',charactersKicker:'.aurora-characters-kicker',charactersTitle:'.aurora-characters h2',charactersText:'.aurora-characters p',chaptersKicker:'.aurora-chapters-kicker',chaptersTitle:'.aurora-chapters h2',chaptersText:'.aurora-chapters p',eraLabel:'.aurora-era-label',eraMotto:'.aurora-era-motto'};
+  Object.entries(map).forEach(([k,sel])=>{const el=document.querySelector(sel);if(el&&t[k])el.textContent=t[k];});
+  if(t.mapLabels){const a=t.mapLabels.split('|').map(x=>x.trim()).filter(Boolean);document.querySelectorAll('.aurora-map span').forEach((el,i)=>{if(a[i])el.textContent=a[i];});}
+  if(theme.effects==='off') document.querySelectorAll('.aurora-particles,.aurora-embers,.aurora-smoke').forEach(e=>e.remove());
+}
+
+function addAtmosphere() {
+  const root = document.querySelector('.aurora-atmosphere');
+  for (let i = 0; i < 22; i++) {
+    const ember = document.createElement('span');
+    ember.className = 'ember';
+    ember.style.setProperty('--left', `${Math.random() * 100}%`);
+    ember.style.setProperty('--duration', `${5 + Math.random() * 8}s`);
+    ember.style.setProperty('--delay', `${-Math.random() * 10}s`);
+    ember.style.setProperty('--drift', `${-70 + Math.random() * 140}px`);
+    root.appendChild(ember);
+  }
+}
+
+function addCursorGlow() {
+  const glow = document.querySelector('.aurora-cursor-glow');
+  if (!glow || matchMedia('(pointer: coarse)').matches) return;
+  addEventListener('pointermove', e => {
+    glow.style.left = `${e.clientX}px`;
+    glow.style.top = `${e.clientY}px`;
+  }, { passive: true });
+  document.querySelectorAll('a, button').forEach(el => {
+    el.addEventListener('mouseenter', () => document.body.classList.add('aurora-hovering'));
+    el.addEventListener('mouseleave', () => document.body.classList.remove('aurora-hovering'));
+  });
+}
+
+addAtmosphere();
+addCursorGlow();
 
 try {
   let novel = fallback;
@@ -56,27 +178,38 @@ try {
   }
 
   document.title = novel.title || fallback.title;
-  document.getElementById('title').textContent = '⚔️ ' + (novel.title || fallback.title);
-  document.getElementById('subtitle').textContent = novel.description || '';
-  document.getElementById('description').textContent = novel.description || '';
+  applyTheme(novel.theme || {});
+  document.getElementById('title').innerHTML = esc(novel.title || fallback.title).replace(/:\s*([^:]+)$/u, '<span>$1</span>');
+  document.getElementById('description').textContent = novel.description || fallback.description;
   document.getElementById('cover').src = novel.coverUrl || fallback.coverUrl;
 
-  const charsRoot = document.getElementById('characters');
+  const charsRoot = document.getElementById('charactersRoot');
   const charsSnap = await getDocs(collection(db, 'characters'));
   const chars = charsSnap.docs
     .map(d => ({ id:d.id, ...d.data() }))
     .filter(c => !novelId || c.novelId === novelId);
 
   charsRoot.innerHTML = '';
-  if (!chars.length) empty(charsRoot, 'لا توجد شخصيات مضافة بعد.');
-  for (const c of chars) {
-    const el = document.createElement('div');
-    el.className = 'character';
-    el.innerHTML = `${c.imageUrl ? `<img src="${esc(c.imageUrl)}" alt="${esc(c.name)}">` : ''}<h3>${esc(c.name || 'بدون اسم')}</h3><p>${esc(c.description || '')}</p>`;
-    charsRoot.appendChild(el);
+  if (!chars.length) {
+    charsRoot.innerHTML = '<div class="aurora-empty">لا توجد شخصيات مضافة بعد. ستظهر هنا حين تُضاف من لوحة التحكم.</div>';
+  } else {
+    for (const c of chars) {
+      const [, role, tone] = metaFor(c.name);
+      const art = (c.name || 'أ').trim().charAt(0);
+      const el = document.createElement('article');
+      el.className = `aurora-character ${tone ? `character--${tone}` : ''}`;
+      el.innerHTML = `
+        ${c.imageUrl ? `<img src="${esc(c.imageUrl)}" alt="${esc(c.name || 'شخصية')}">` : `<div class="character-art" aria-hidden="true">${esc(art)}</div>`}
+        <div class="aurora-character-body">
+          <span class="aurora-character-role">${esc(role)}</span>
+          <h3 class="aurora-character-name">${esc(c.name || 'بدون اسم')}</h3>
+          <p class="aurora-character-desc">${esc(c.description || '')}</p>
+        </div>`;
+      charsRoot.appendChild(el);
+    }
   }
 
-  const chaptersRoot = document.getElementById('chapters');
+  const chaptersRoot = document.getElementById('chaptersRoot');
   const chSnap = await getDocs(collection(db, 'chapters'));
   const chapters = chSnap.docs
     .map(d => ({ id:d.id, ...d.data() }))
@@ -93,17 +226,26 @@ try {
 
   chaptersRoot.innerHTML = '';
   let first = '';
-  if (!chapters.length) empty(chaptersRoot, 'لا توجد فصول مضافة بعد.');
-  for (let i = 0; i < chapters.length; i++) {
-    const c = chapters[i];
-    const displayNumber = Number.isFinite(Number(c.number)) && Number(c.number) > 0 ? Number(c.number) : (i + 1);
-    const displayTitle = c.title || 'فصل';
-    const a = document.createElement('a');
-    a.href = 'chapter.html?id=' + encodeURIComponent(c.id);
-    a.innerHTML = `<button>الفصل ${displayNumber}: ${esc(displayTitle)}</button>`;
-    chaptersRoot.appendChild(a);
-    if (!first) first = a.href;
+  if (!chapters.length) {
+    chaptersRoot.innerHTML = '<div class="aurora-empty">لا توجد فصول مضافة بعد.</div>';
+  } else {
+    chapters.forEach((c, i) => {
+      const n = Number.isFinite(Number(c.number)) && Number(c.number) > 0 ? Number(c.number) : i + 1;
+      const a = document.createElement('a');
+      a.className = 'aurora-chapter-entry';
+      a.href = 'chapter.html?id=' + encodeURIComponent(c.id);
+      a.innerHTML = `
+        <span class="aurora-chapter-number">${n}</span>
+        <span class="aurora-chapter-meta">
+          <span class="aurora-chapter-kicker">Imperial Record ${String(n).padStart(2, '0')}</span>
+          <span class="aurora-chapter-title">${esc(c.title || 'فصل')}</span>
+        </span>
+        <span class="aurora-chapter-arrow">←</span>`;
+      chaptersRoot.appendChild(a);
+      if (!first) first = a.href;
+    });
   }
+
   document.getElementById('startLink').href = first || (novelId === 'fallback-aurora' ? 'chapter1.html' : '#');
 } catch (e) {
   console.error(e);

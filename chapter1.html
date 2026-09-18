@@ -5,27 +5,38 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-<title>أورورا - الفصل الأول</title>
+<title>أورورا: سقوط الإمبراطورية — الفصل الأول</title>
 
 <link rel="stylesheet" href="style.css">
 
 </head>
 
 
-<body>
+<body class="aurora-reading-page">
+<div class="aurora-atmosphere" aria-hidden="true"></div>
+<div class="aurora-cursor-glow" aria-hidden="true"></div>
+<div class="aurora-progress" aria-hidden="true"><div class="aurora-progress-bar" id="progressBar"></div></div>
+<div class="aurora-reading-top">
+  <a class="aurora-reading-brand" href="aurora.html">⚔️ أورورا</a>
+  <div class="aurora-reading-tools">
+    <a class="aurora-tool" href="aurora.html">سجل الرواية</a>
+    <button class="aurora-tool" id="focusBtn" type="button">وضع التركيز</button>
+  </div>
+</div>
 
 
-<header>
+<header class="aurora-reading-head">
 
-<h1>⚔️ أورورا: صعود نبيل</h1>
-
-<p>الفصل الأول: بداية الرحلة</p>
+<p class="aurora-reading-eyebrow">Aurora • Imperial Archives</p>
+<h1 class="aurora-reading-title">أورورا: سقوط الإمبراطورية</h1>
+<p class="aurora-reading-subtitle">الفصل الأول: بداية الرحلة</p>
+<div class="aurora-rule"></div>
 
 </header>
 
 
 
-<section class="chapter">
+<main class="aurora-reading-shell"><article class="aurora-reading-paper"><section class="chapter aurora-reading-content">
 
 
 <h2>الفصل الأول: بداية الرحلة</h2>
@@ -1435,8 +1446,43 @@
 </a>
 
 
-</section>
+</section></article></main>
 
+<nav class="aurora-reading-nav" aria-label="تنقل الفصول">
+  <a href="aurora.html">سجل الرواية</a>
+  <a href="aurora.html">العودة إلى أورورا</a>
+</nav>
+
+<script>
+(() => {
+  const root = document.querySelector('.aurora-atmosphere');
+  for (let i = 0; i < 16; i++) {
+    const ember = document.createElement('span');
+    ember.className = 'ember';
+    ember.style.setProperty('--left', `${Math.random() * 100}%`);
+    ember.style.setProperty('--duration', `${6 + Math.random() * 8}s`);
+    ember.style.setProperty('--delay', `${-Math.random() * 10}s`);
+    ember.style.setProperty('--drift', `${-60 + Math.random() * 120}px`);
+    root.appendChild(ember);
+  }
+  const glow = document.querySelector('.aurora-cursor-glow');
+  if (glow && !matchMedia('(pointer: coarse)').matches) {
+    addEventListener('pointermove', e => { glow.style.left = e.clientX + 'px'; glow.style.top = e.clientY + 'px'; }, { passive: true });
+  }
+  document.querySelectorAll('a, button').forEach(el => {
+    el.addEventListener('mouseenter', () => document.body.classList.add('aurora-hovering'));
+    el.addEventListener('mouseleave', () => document.body.classList.remove('aurora-hovering'));
+  });
+  const bar = document.getElementById('progressBar');
+  const update = () => {
+    const max = document.documentElement.scrollHeight - innerHeight;
+    bar.style.width = (max > 0 ? Math.min(100, Math.max(0, scrollY / max * 100)) : 0) + '%';
+  };
+  addEventListener('scroll', update, { passive: true });
+  update();
+  document.getElementById('focusBtn').addEventListener('click', () => document.body.classList.toggle('aurora-focus'));
+})();
+</script>
 
 </body>
 

@@ -1,0 +1,99 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>نيرفال — الفصل</title>
+  <link rel="stylesheet" href="nerval.css">
+  <style>
+    .reading-shell{width:min(900px,90vw);margin:0 auto;padding:130px 0 100px}
+    .reading-head{border-bottom:1px solid rgba(238,232,220,.12);padding-bottom:35px;margin-bottom:45px}
+    .reading-head h1{font-size:clamp(36px,6vw,70px);margin:12px 0;color:#eee8de}
+    .reading-head .chapter-label{color:#ef8738;font-size:13px;letter-spacing:2px}
+    .reading-content{background:linear-gradient(145deg,rgba(255,255,255,.025),rgba(255,255,255,.008));border:1px solid rgba(238,232,220,.09);padding:clamp(25px,5vw,65px)}
+    .reading-content p{font-size:20px;line-height:2.25;color:#c1bbb2;margin:0 0 28px}
+    .reading-footer{display:flex;justify-content:space-between;gap:15px;margin-top:35px}
+  </style>
+</head>
+<body class="nerval-world">
+  <div class="dragon-cursor" aria-hidden="true"></div>
+  <div class="ember-layer"></div>
+  <div class="mist-layer"></div>
+  <header class="nerval-nav">
+    <a class="nav-brand" href="nerval.html">NERVAL</a>
+    <span class="nav-world">سجلات نيرفال</span>
+  </header>
+
+  <main class="reading-shell">
+    <div class="reading-head">
+      <span id="chapter-label" class="chapter-label">سجل نيرفال</span>
+      <h1 id="chapter-title">جارٍ تحميل الفصل...</h1>
+    </div>
+    <article id="chapter-content" class="reading-content">
+      <p>جارٍ تحميل النص...</p>
+    </article>
+    <div class="reading-footer">
+      <a class="nerval-btn ghost" href="nerval.html">العودة إلى نيرفال</a>
+      <a class="nerval-btn primary" id="next-link" href="nerval.html">سجل العالم</a>
+    </div>
+  </main>
+
+  <script type="module">
+    import { db, getDoc, doc } from './site.js';
+
+    const cursor = document.querySelector('.dragon-cursor');
+    function applyCursor(theme={}) {
+      if (!cursor) return;
+      cursor.classList.remove('cursor-crosshair','cursor-dot','cursor-memory');
+      if (theme.cursorColor) document.documentElement.style.setProperty('--nv-cursor', theme.cursorColor);
+      if (theme.cursorStyle === 'crosshair') cursor.classList.add('cursor-crosshair');
+      else if (theme.cursorStyle === 'dot') cursor.classList.add('cursor-dot');
+      else if (theme.cursorStyle === 'memory') cursor.classList.add('cursor-memory');
+    }
+    if (!matchMedia('(pointer:coarse)').matches) {
+      addEventListener('pointermove', e => { cursor.style.left=e.clientX+'px'; cursor.style.top=e.clientY+'px'; }, {passive:true});
+      document.querySelectorAll('a').forEach(el=>{el.addEventListener('mouseenter',()=>cursor.classList.add('active'));el.addEventListener('mouseleave',()=>cursor.classList.remove('active'));});
+    } else cursor?.remove();
+
+    const id = new URLSearchParams(location.search).get('id');
+    const label = document.getElementById('chapter-label');
+    const title = document.getElementById('chapter-title');
+    const content = document.getElementById('chapter-content');
+
+    function esc(value) {
+      return String(value ?? '').replace(/[&<>"']/g, ch => ({
+        '&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#039;'
+      }[ch]));
+    }
+
+    async function load() {
+      if (!id) {
+        label.textContent = 'سجل نيرفال';
+        title.textContent = 'الفصل غير موجود';
+        content.innerHTML = '<p>لم يتم تحديد فصل.</p>';
+        return;
+      }
+      try {
+        const snap = await getDoc(doc(db, 'chapters', id));
+        if (!snap.exists()) throw new Error('not found');
+        const c = snap.data();
+        if (c.novelId) { const ns = await getDoc(doc(db, 'novels', c.novelId)); if (ns.exists()) applyCursor(ns.data().theme || {}); }
+        label.textContent = `الفصل ${esc(c.number ?? '')}`;
+        title.textContent = c.title || 'فصل بلا عنوان';
+        document.title = `نيرفال — الفصل ${c.number ?? ''}`;
+        const paragraphs = String(c.content || '').split(/\n{2,}/).filter(Boolean);
+        content.innerHTML = paragraphs.map(p => `<p>${esc(p).replace(/\n/g,'<br>')}</p>`).join('') || '<p>لا يوجد نص.</p>';
+      } catch {
+        title.textContent = 'تعذر تحميل الفصل';
+        content.innerHTML = '<p>حدث خطأ أثناء تحميل هذا الفصل.</p>';
+      }
+    }
+    load();
+
+    window.addEventListener('pointermove', e => {
+      document.documentElement.style.setProperty('--mx', `${e.clientX}px`);
+      document.documentElement.style.setProperty('--my', `${e.clientY}px`);
+    });
+  </script>
+</body>
+</html>
