@@ -299,7 +299,7 @@ body.aurora-reading-page {
         radial-gradient(circle at 85% 70%, rgba(134, 76, 27, .07), transparent 32%),
         linear-gradient(180deg, #080706 0%, #0d0b09 35%, #100e0c 100%);
     overflow-x: hidden;
-    cursor: url('images/aurora-sword.svg') 8 8, default;
+    cursor:url('images/aurora-sword.svg') 8 8, auto;
 }
 
 body.aurora-world::before,
@@ -322,7 +322,7 @@ body.aurora-reading-page::before {
 .aurora-world button,
 .aurora-reading-page a,
 .aurora-reading-page button {
-    cursor: url('images/aurora-sword.svg') 8 8, pointer;
+    cursor:url('images/aurora-sword.svg') 8 8, auto;
 }
 
 .aurora-atmosphere,
@@ -1052,19 +1052,7 @@ body.aurora-focus .aurora-reading-paper {
 
 body.aurora-focus .aurora-reading-content p { color: #e4ddcf; }
 
-.aurora-cursor-glow {
-    position: fixed;
-    width: 18px;
-    height: 18px;
-    border-radius: 50%;
-    border: 1px solid rgba(241,212,138,.18);
-    box-shadow: 0 0 25px rgba(217,179,92,.08);
-    pointer-events: none;
-    transform: translate(-50%, -50%);
-    z-index: 50;
-    mix-blend-mode: screen;
-    transition: width .12s ease, height .12s ease, border-color .12s ease;
-}
+.aurora-cursor-glow{display:none!important;pointer-events:none!important;}
 
 body.aurora-hovering .aurora-cursor-glow {
     width: 30px;
