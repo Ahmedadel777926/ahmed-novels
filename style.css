@@ -299,7 +299,7 @@ body.aurora-reading-page {
         radial-gradient(circle at 85% 70%, rgba(134, 76, 27, .07), transparent 32%),
         linear-gradient(180deg, #080706 0%, #0d0b09 35%, #100e0c 100%);
     overflow-x: hidden;
-    
+    cursor: none;
 }
 
 body.aurora-world::before,
@@ -322,7 +322,7 @@ body.aurora-reading-page::before {
 .aurora-world button,
 .aurora-reading-page a,
 .aurora-reading-page button {
-    
+    cursor: none;
 }
 
 .aurora-atmosphere,
@@ -1052,12 +1052,24 @@ body.aurora-focus .aurora-reading-paper {
 
 body.aurora-focus .aurora-reading-content p { color: #e4ddcf; }
 
-.aurora-cursor-glow{display:none!important;pointer-events:none!important;}
+.aurora-cursor {
+    position: fixed;
+    left: 0;
+    top: 0;
+    width: 52px;
+    height: 52px;
+    background: url('images/aurora-sword.png') center / contain no-repeat;
+    pointer-events: none;
+    transform: translate(-18%, -18%) rotate(-12deg);
+    transform-origin: 20% 80%;
+    z-index: 9999;
+    filter: drop-shadow(0 0 8px rgba(120,170,255,.18));
+    transition: transform .12s ease, filter .12s ease;
+}
 
-body.aurora-hovering .aurora-cursor-glow {
-    width: 30px;
-    height: 30px;
-    border-color: rgba(241,212,138,.45);
+body.aurora-hovering .aurora-cursor {
+    transform: translate(-18%, -18%) rotate(-12deg) scale(1.12);
+    filter: drop-shadow(0 0 12px rgba(120,170,255,.34));
 }
 
 @media (max-width: 900px) {
@@ -1080,7 +1092,7 @@ body.aurora-hovering .aurora-cursor-glow {
     .aurora-world button,
     .aurora-reading-page a,
     .aurora-reading-page button { cursor: pointer; }
-    .aurora-cursor-glow { display: none; }
+    .aurora-cursor { display: none; }
     .aurora-topbar { padding-top: 12px; }
     .aurora-hero { padding-top: 48px; }
     .aurora-cover-wrap::before { inset: -7px 7px 7px -7px; }
@@ -1103,5 +1115,4 @@ body.aurora-hovering .aurora-cursor-glow {
         scroll-behavior: auto !important;
     }
 }
-
 

@@ -5,40 +5,6 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Ahmed Novels</title>
 <link rel="stylesheet" href="style.css">
-<style>/* scoped cursor main-quill-png-v7 */ html,body{cursor:url("images/writer-quill.png?v=7") 8 8,auto!important} body a,body button,body input,body textarea,body select{cursor:url("images/writer-quill.png?v=7") 8 8,pointer!important}</style>
-<style id="follow-cursor-quill">
-  #ahmed-follow-cursor-quill{
-    position:fixed;left:0;top:0;width:64px;height:64px;
-    pointer-events:none;z-index:2147483647;display:none;
-    transform:translate(-8px,-8px);background:url("images/writer-quill.png?v=9") center/contain no-repeat;
-    will-change:transform;
-  }
-  @media (hover:hover) and (pointer:fine){
-    body.cursor-follow-quill{cursor:none!important}
-    body.cursor-follow-quill a,body.cursor-follow-quill button,
-    body.cursor-follow-quill input,body.cursor-follow-quill textarea,
-    body.cursor-follow-quill select{cursor:none!important}
-  }
-</style>
-<script>
-(function(){
-  const c=document.createElement('div');
-  c.id='ahmed-follow-cursor-quill';
-  c.setAttribute('aria-hidden','true');
-  document.addEventListener('DOMContentLoaded',()=>{
-    document.body.appendChild(c);
-    document.body.classList.add('cursor-follow-quill');
-    if(matchMedia('(hover:hover) and (pointer:fine)').matches) c.style.display='block';
-  });
-  document.addEventListener('mousemove',e=>{
-    c.style.transform='translate('+(e.clientX-8)+'px,'+(e.clientY-8)+'px)';
-  },{passive:true});
-  document.addEventListener('mouseleave',()=>c.style.display='none');
-  document.addEventListener('mouseenter',()=>{
-    if(matchMedia('(hover:hover) and (pointer:fine)').matches)c.style.display='block';
-  });
-})();
-</script>
 </head>
 <body>
 <header>
