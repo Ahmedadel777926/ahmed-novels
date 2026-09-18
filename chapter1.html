@@ -14,7 +14,7 @@
 
 <body class="aurora-reading-page">
 <div class="aurora-atmosphere" aria-hidden="true"></div>
-<div class="aurora-cursor" aria-hidden="true"></div>
+<div class="aurora-cursor-glow" aria-hidden="true"></div>
 <div class="aurora-progress" aria-hidden="true"><div class="aurora-progress-bar" id="progressBar"></div></div>
 <div class="aurora-reading-top">
   <a class="aurora-reading-brand" href="aurora.html">⚔️ أورورا</a>
@@ -1465,7 +1465,7 @@
     ember.style.setProperty('--drift', `${-60 + Math.random() * 120}px`);
     root.appendChild(ember);
   }
-  const glow = document.querySelector('.aurora-cursor');
+  const glow = document.querySelector('.aurora-cursor-glow');
   if (glow && !matchMedia('(pointer: coarse)').matches) {
     addEventListener('pointermove', e => { glow.style.left = e.clientX + 'px'; glow.style.top = e.clientY + 'px'; }, { passive: true });
   }

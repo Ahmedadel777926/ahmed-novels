@@ -9,7 +9,7 @@
 </head>
 <body class="aurora-world">
 <div class="aurora-atmosphere" aria-hidden="true"></div>
-<div class="aurora-cursor" aria-hidden="true"></div>
+<div class="aurora-cursor-glow" aria-hidden="true"></div>
 
 <div class="aurora-page-shell">
   <nav class="aurora-topbar" aria-label="التنقل">
@@ -149,21 +149,19 @@ function addAtmosphere() {
   }
 }
 
-function addCursorGlow() {
-  const glow = document.querySelector('.aurora-cursor');
-  if (!glow || matchMedia('(pointer: coarse)').matches) return;
-  addEventListener('pointermove', e => {
-    glow.style.left = `${e.clientX}px`;
-    glow.style.top = `${e.clientY}px`;
-  }, { passive: true });
-  document.querySelectorAll('a, button').forEach(el => {
-    el.addEventListener('mouseenter', () => document.body.classList.add('aurora-hovering'));
-    el.addEventListener('mouseleave', () => document.body.classList.remove('aurora-hovering'));
+function addCursorGlow(){
+  const cur=document.querySelector('.aurora-cursor');
+  if(!cur || matchMedia('(pointer:coarse)').matches) return;
+  addEventListener('pointermove',e=>{
+    cur.style.left=e.clientX+'px';
+    cur.style.top=e.clientY+'px';
+  },{passive:true});
+  document.querySelectorAll('a,button').forEach(el=>{
+    el.addEventListener('mouseenter',()=>document.body.classList.add('aurora-hovering'));
+    el.addEventListener('mouseleave',()=>document.body.classList.remove('aurora-hovering'));
   });
 }
-
-addAtmosphere();
-addCursorGlow();
+addAtmosphere(); addCursorGlow();
 
 try {
   let novel = fallback;

@@ -9,7 +9,7 @@
 </head>
 <body class="aurora-reading-page">
 <div class="aurora-atmosphere" aria-hidden="true"></div>
-<div class="aurora-cursor" aria-hidden="true"></div>
+<div class="aurora-cursor-glow" aria-hidden="true"></div>
 <div class="aurora-progress" aria-hidden="true"><div class="aurora-progress-bar" id="progressBar"></div></div>
 
 <div class="aurora-reading-top">
@@ -60,7 +60,7 @@ function addAtmosphere() {
 
 function initEffects() {
   addAtmosphere();
-  const glow = document.querySelector('.aurora-cursor');
+  const glow = document.querySelector('.aurora-cursor-glow');
   if (glow && !matchMedia('(pointer: coarse)').matches) {
     addEventListener('pointermove', e => {
       glow.style.left = `${e.clientX}px`;
