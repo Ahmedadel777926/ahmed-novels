@@ -56,15 +56,24 @@ try {
     for (const n of novels) {
       const card = document.createElement('div');
       const titleText = String(n.title || '');
-      const isAgentZero = /العميل\s*صفر|مطاردة\s*صفر/i.test(titleText);
-      const isNerval = /نيرفال|زافيريون/i.test(titleText);
-      const isDecision = /قرار\s*الذكريات/i.test(titleText);
-      const isMala = /ما\s*لا\s*ينتهي\s*في\s*رأسي/i.test(titleText);
+      // Normalize Arabic text so small differences in spacing/diacritics do not
+      // accidentally send the new novel to the Aurora fallback page.
+      const normalizedTitle = titleText
+        .normalize('NFKD')
+        .replace(/[\u064B-\u065F\u0670\u0640]/g, '')
+        .replace(/\s+/g, ' ')
+        .trim();
+      const isAgentZero = /العميل\s*صفر|مطاردة\s*صفر/i.test(normalizedTitle);
+      const isNerval = /نيرفال|زافيريون/i.test(normalizedTitle);
+      const isDecision = /قرار\s*الذكريات/i.test(normalizedTitle);
+      const isMala = /ما\s*لا\s*ينتهي\s*في\s*رأس[يى]/i.test(normalizedTitle)
+        || (/لا\s*ينتهي/i.test(normalizedTitle) && /رأس[يى]/i.test(normalizedTitle));
       const targetPage = isMala ? 'mala.html' : (isDecision ? 'decision_memories.html' : (isNerval ? 'nerval.html' : (isAgentZero ? 'agent_zero.html' : 'aurora.html')));
       const coverDefault = isMala ? 'images/mala-cover.jpeg' : (isDecision ? 'images/decision-memory-cover.jpg' : (isAgentZero ? 'images/agent-zero-cover.jpg' : (isNerval ? 'images/nerval-cover.jpeg' : 'images/aurora.jpeg')));
+      const coverSrc = isMala ? 'images/mala-cover.jpeg' : (n.coverUrl || coverDefault);
       card.className = 'card';
       card.innerHTML = `
-        <img src="${esc(n.coverUrl || coverDefault)}" alt="${esc(n.title || 'رواية')}">
+        <img src="${esc(coverSrc)}" onerror="this.onerror=null;this.src='${coverDefault}'" alt="${esc(n.title || 'رواية')}">
         <h2>${esc(n.title || 'بدون اسم')}</h2>
         <p>${esc(n.description || '')}</p>
         <a href="${targetPage}?id=${encodeURIComponent(n.id)}"><button>اقرأ الآن</button></a>
