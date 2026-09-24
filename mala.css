@@ -11,3 +11,6 @@ body:before{content:"";position:fixed;inset:0;pointer-events:none;z-index:-1;bac
 .chronicle{background:#0f1012;color:#e5e6e9}.chapter-card{margin-top:45px;padding:34px 38px;border-left:2px solid #777a80;background:linear-gradient(145deg,#17181a,#121315);box-shadow:0 20px 45px rgba(0,0,0,.42)}.chapter-card .small{font-size:11px;letter-spacing:3px;color:#8c8f95}.chapter-card h3{font-size:34px;font-weight:500;margin:15px 0}.chapter-card p{color:#9b9da2;line-height:1.9}.chapter-actions{margin-top:22px;display:flex;gap:12px;flex-wrap:wrap}.chapter-actions .btn{color:#e1e2e5;border-color:rgba(255,255,255,.18)}
 .final{min-height:75vh;display:grid;place-items:center;text-align:center;background:radial-gradient(circle at center,rgba(255,255,255,.055),transparent 38%),#08090a}.final h2{font-size:clamp(42px,7vw,82px);font-weight:400;line-height:1.25;margin:15px 0;color:#e7e8eb}.final p{font-size:23px;color:#96999f}.final .kicker{color:#888b91}
 @media(max-width:800px){.hero{grid-template-columns:1fr;padding-top:120px}.hero-book{order:-1}.thoughts,.character{grid-template-columns:1fr}.section{padding:80px 6vw}.nav span{display:none}.cover-frame{width:min(330px,78vw)}}
+
+/* MA LA IDENTITY LOCK — this page never inherits another novel theme */
+body.mala-world[data-novel="mala"]{background:#0a0a0b!important;color:#e5e5e7!important}
