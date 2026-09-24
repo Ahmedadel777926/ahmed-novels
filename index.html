@@ -46,8 +46,12 @@ try {
     return bt - at;
   });
 
-  const hasMala = novels.some(n => /ما\s*لا\s*ينتهي\s*في\s*رأسي/i.test(String(n.title||'')));
-  if (!hasMala) novels.push({id:'__mala_local__',title:'ما لا ينتهي في رأسي',description:'تاي لا تنقصه القوة... لكنه اختار الصمت. وفي رأسه تبدأ معركة أخرى: فهم مشاعره، ومعرفة لماذا يحتاج إلى اهتمام لم يطلبه يومًا.',coverUrl:'images/mala-cover.jpeg',createdAt:{seconds:0},localOnly:true});
+  // Keep the fifth novel completely independent from Firebase for its identity, cover, and page routing.
+  // Remove any Firebase copy of it to prevent an old record from opening Aurora.
+  const filteredNovels = novels.filter(n => !/ما\s*لا\s*ينتهي\s*في\s*رأس[يى]/i.test(String(n.title||'')));
+  filteredNovels.push({id:'__mala_local__',title:'ما لا ينتهي في رأسي',description:'تاي لا تنقصه القوة... لكنه اختار الصمت. وفي رأسه تبدأ معركته الخاصة لفهم مشاعره، واكتشاف سبب حاجته للاهتمام الذي لم يطلبه يومًا.',coverUrl:'images/mala-cover.jpeg',createdAt:{seconds:0},localOnly:true});
+  novels.length = 0;
+  novels.push(...filteredNovels);
 
   root.innerHTML = '';
   if (!novels.length) {
@@ -76,14 +80,20 @@ try {
         <img src="${esc(coverSrc)}" onerror="this.onerror=null;this.src='${coverDefault}'" alt="${esc(n.title || 'رواية')}">
         <h2>${esc(n.title || 'بدون اسم')}</h2>
         <p>${esc(n.description || '')}</p>
-        <a href="${targetPage}?id=${encodeURIComponent(n.id)}"><button>اقرأ الآن</button></a>
+        <a href="${isMala ? 'mala.html' : targetPage + '?id=' + encodeURIComponent(n.id)}"><button>اقرأ الآن</button></a>
       `;
       root.appendChild(card);
     }
   }
 } catch (e) {
   console.error(e);
-  root.innerHTML = '<p style="color:#aaa">تعذر تحميل الروايات. تأكد من اتصال Firebase.</p>';
+  root.innerHTML = `
+    <div class="card">
+      <img src="images/mala-cover.jpeg" alt="غلاف ما لا ينتهي في رأسي">
+      <h2>ما لا ينتهي في رأسي</h2>
+      <p>تاي لا تنقصه القوة... لكنه اختار الصمت. وفي رأسه تبدأ معركته الخاصة لفهم مشاعره.</p>
+      <a href="mala.html"><button>اقرأ الآن</button></a>
+    </div>`;
 }
 </script>
 </body>
