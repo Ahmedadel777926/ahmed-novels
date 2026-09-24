@@ -29,63 +29,71 @@ const esc = s => String(s ?? '').replace(/[&<>'"]/g, c => ({
   '&':'&amp;', '<':'&lt;', '>':'&gt;', "'":'&#39;', '"':'&quot;'
 }[c]));
 
-function malaCard(){
-  const card=document.createElement('div');
-  card.className='card';
-  card.innerHTML=`
-    <img src="images/mala-cover.jpeg?v=20260924" alt="غلاف ما لا ينتهي في رأسي"
-         onerror="this.onerror=null;this.src='images/mala-cover.jpeg'">
-    <h2>ما لا ينتهي في رأسي</h2>
-    <p>تاي لا تنقصه القوة... لكنه اختار الصمت. وفي رأسه تبدأ معركته الخاصة لفهم مشاعره.</p>
-    <a href="mala.html"><button>اقرأ الآن</button></a>`;
-  return card;
-}
-
-// مالا محلية بالكامل: لا تنتظر Firebase ولا تأخذ الغلاف أو الرابط من أي سجل.
-root.innerHTML='';
-root.appendChild(malaCard());
-
 try {
   const bioSnap = await getDoc(doc(db, 'siteSettings', 'about'));
   const bioText = document.getElementById('authorBioText');
-  bioText.textContent = bioSnap.exists() && bioSnap.data().bio
-    ? bioSnap.data().bio
-    : 'أضف نبذة عن الكاتب من لوحة الأدمن.';
+  if (bioSnap.exists() && bioSnap.data().bio) {
+    bioText.textContent = bioSnap.data().bio;
+  } else {
+    bioText.textContent = 'أضف نبذة عن الكاتب من لوحة الأدمن.';
+  }
 
   const snap = await getDocs(collection(db, 'novels'));
-  const novels = snap.docs.map(d => ({ id:d.id, ...d.data() }))
-    .filter(n => !/ما\s*لا\s*ينتهي\s*في\s*رأس[يى]/i.test(String(n.title||'')));
+  const novels = snap.docs.map(d => ({ id: d.id, ...d.data() }));
+  novels.sort((a,b) => {
+    const at = a.createdAt?.seconds ?? 0;
+    const bt = b.createdAt?.seconds ?? 0;
+    return bt - at;
+  });
 
-  novels.sort((a,b)=>(b.createdAt?.seconds??0)-(a.createdAt?.seconds??0));
+  // Keep the fifth novel completely independent from Firebase for its identity, cover, and page routing.
+  // Remove any Firebase copy of it to prevent an old record from opening Aurora.
+  const filteredNovels = novels.filter(n => !/ما\s*لا\s*ينتهي\s*في\s*رأس[يى]/i.test(String(n.title||'')));
+  filteredNovels.push({id:'__mala_local_v2__',title:'ما لا ينتهي في رأسي',description:'تاي لا تنقصه القوة... لكنه اختار الصمت. وفي رأسه تبدأ معركته الخاصة لفهم مشاعره، واكتشاف سبب حاجته للاهتمام الذي لم يطلبه يومًا.',coverUrl:'images/mala-v2-cover.jpeg',createdAt:{seconds:0},localOnly:true});
+  novels.length = 0;
+  novels.push(...filteredNovels);
 
-  for(const n of novels){
-    const titleText=String(n.title||'');
-    const normalizedTitle=titleText.normalize('NFKD')
-      .replace(/[\u064B-\u065F\u0670\u0640]/g,'')
-      .replace(/\s+/g,' ').trim();
-
-    const isAgentZero=/العميل\s*صفر|مطاردة\s*صفر/i.test(normalizedTitle);
-    const isNerval=/نيرفال|زافيريون/i.test(normalizedTitle);
-    const isDecision=/قرار\s*الذكريات/i.test(normalizedTitle);
-    const targetPage=isDecision?'decision_memories.html':
-      (isNerval?'nerval.html':(isAgentZero?'agent_zero.html':'aurora.html'));
-    const coverDefault=isDecision?'images/decision-memory-cover.jpg':
-      (isAgentZero?'images/agent-zero-cover.jpg':
-      (isNerval?'images/nerval-cover.jpeg':'images/aurora.jpeg'));
-    const coverSrc=n.coverUrl||coverDefault;
-
-    const card=document.createElement('div');
-    card.className='card';
-    card.innerHTML=`
-      <img src="${esc(coverSrc)}" onerror="this.onerror=null;this.src='${coverDefault}'" alt="${esc(titleText||'رواية')}">
-      <h2>${esc(titleText||'بدون اسم')}</h2>
-      <p>${esc(n.description||'')}</p>
-      <a href="${targetPage}?id=${encodeURIComponent(n.id)}"><button>اقرأ الآن</button></a>`;
-    root.appendChild(card);
+  root.innerHTML = '';
+  if (!novels.length) {
+    root.innerHTML = '<p style="color:#aaa">لا توجد روايات مضافة بعد.</p>';
+  } else {
+    for (const n of novels) {
+      const card = document.createElement('div');
+      const titleText = String(n.title || '');
+      // Normalize Arabic text so small differences in spacing/diacritics do not
+      // accidentally send the new novel to the Aurora fallback page.
+      const normalizedTitle = titleText
+        .normalize('NFKD')
+        .replace(/[\u064B-\u065F\u0670\u0640]/g, '')
+        .replace(/\s+/g, ' ')
+        .trim();
+      const isAgentZero = /العميل\s*صفر|مطاردة\s*صفر/i.test(normalizedTitle);
+      const isNerval = /نيرفال|زافيريون/i.test(normalizedTitle);
+      const isDecision = /قرار\s*الذكريات/i.test(normalizedTitle);
+      const isMala = /ما\s*لا\s*ينتهي\s*في\s*رأس[يى]/i.test(normalizedTitle)
+        || (/لا\s*ينتهي/i.test(normalizedTitle) && /رأس[يى]/i.test(normalizedTitle));
+      const targetPage = isMala ? 'mala_v2.html' : (isDecision ? 'decision_memories.html' : (isNerval ? 'nerval.html' : (isAgentZero ? 'agent_zero.html' : 'aurora.html')));
+      const coverDefault = isMala ? 'images/mala-v2-cover.jpeg' : (isDecision ? 'images/decision-memory-cover.jpg' : (isAgentZero ? 'images/agent-zero-cover.jpg' : (isNerval ? 'images/nerval-cover.jpeg' : 'images/aurora.jpeg')));
+      const coverSrc = isMala ? 'images/mala-v2-cover.jpeg' : (n.coverUrl || coverDefault);
+      card.className = 'card';
+      card.innerHTML = `
+        <img src="${esc(coverSrc)}" onerror="this.onerror=null;this.src='${coverDefault}'" alt="${esc(n.title || 'رواية')}">
+        <h2>${esc(n.title || 'بدون اسم')}</h2>
+        <p>${esc(n.description || '')}</p>
+        <a href="${isMala ? 'mala_v2.html' : targetPage + '?id=' + encodeURIComponent(n.id)}"><button>اقرأ الآن</button></a>
+      `;
+      root.appendChild(card);
+    }
   }
-} catch(e) {
-  console.error('Firebase novels failed:',e);
-  // مالا يظل ظاهرًا حتى لو Firebase غير متاح.
+} catch (e) {
+  console.error(e);
+  root.innerHTML = `
+    <div class="card">
+      <img src="images/mala-v2-cover.jpeg" alt="غلاف ما لا ينتهي في رأسي">
+      <h2>ما لا ينتهي في رأسي</h2>
+      <p>تاي لا تنقصه القوة... لكنه اختار الصمت. وفي رأسه تبدأ معركته الخاصة لفهم مشاعره.</p>
+      <a href="mala_v2.html"><button>اقرأ الآن</button></a>
+    </div>`;
 }
 </script>
 </body>

@@ -1,0 +1,50 @@
+<!DOCTYPE html><html lang="ar" dir="rtl"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1.0"><title>ما لا ينتهي في رأسي</title><link rel="stylesheet" href="mala_v2.css"></head><body class="mala-world"><div class="mala-cursor" aria-hidden="true"></div><header class="nav"><a class="brand" href="index.html">AHMED NOVELS</a><span>ما لا ينتهي في رأسي • سجل داخلي</span></header><main>
+<section class="hero"><div class="hero-copy"><div class="kicker">A STORY INSIDE THE MIND</div><h1>ما لا ينتهي<br>في رأسي</h1><p>تاي لا تنقصه القوة... لكنه اختار الصمت. وبينما يراه الجميع ضعيفًا، يخوض معركته الخاصة لفهم مشاعره، واكتشاف سبب حاجته للاهتمام الذي لم يطلبه يومًا.</p><div class="quote">«هناك فرق كبير بين العجز والاختيار.»</div><a class="btn" id="startBtn" href="mala_v2_chapter.html">ابدأ الفصل الأول</a></div><div class="hero-book"><div class="cover-frame"><img src="images/mala-v2-cover.jpeg" alt="غلاف ما لا ينتهي في رأسي"></div></div></section>
+<section class="section light"><div class="section-inner"><div class="kicker">WHAT HE DOESN'T SAY</div><h2 class="section-title">المشكلة ليست في القوة.</h2><p class="section-text">تاي يعرف أنه قادر على الرد. لكنه لا يفعل. الصمت بالنسبة إليه ليس عجزًا، بل اختيارًا... وربما طريقة قديمة للحصول على شيء لم يعرف كيف يطلبه مباشرة.</p><div class="thoughts"><article class="thought"><span>01 • الصمت</span><h3>أن تستطيع ولا تفعل</h3><p>القوة موجودة، لكن القرار مختلف. تاي لا ينتظر من أحد أن يراه قويًا.</p></article><article class="thought"><span>02 • الاهتمام</span><h3>لماذا نحتاج أن يُلاحظنا أحد؟</h3><p>أحيانًا يكفي أن يلتفت شخص واحد لنعرف أننا لسنا غير مرئيين.</p></article><article class="thought"><span>03 • الحب</span><h3>هل يمكن أن يكون بلا سبب؟</h3><p>السؤال الذي يلاحق تاي من أمه إلى لينا... ومن حياته إلى الكتاب الذي أخذه معها.</p></article></div></div></section>
+<section class="section dark"><div class="section-inner character"><img class="character-img" src="images/mala-v2-tai.jpeg" alt="تاي"><div class="character-copy"><div class="kicker">THE BOY WHO STAYS QUIET</div><h2>تاي</h2><p>شاب هادئ، ساخر في أفكاره، قوي أكثر مما يظن الآخرون، لكنه لا يعرف دائمًا كيف يتعامل مع مشاعره. يعتني بجسده، يساعد من حوله، ويحب أمه بطريقة تجعله يتساءل عن معنى الحب غير المشروط.</p><p class="character-note">«فقط عندما أتعرض للأذى تعود عيناكِ أخيرًا للنظر لي.»</p></div></div></section>
+<section class="section light"><div class="section-inner"><div class="kicker">A BOOK INSIDE THE STORY</div><h2 class="section-title">الكتاب الذي بقي في رأسه</h2><p class="section-text">كتاب عابر دخل حياة تاي في لحظة بسيطة داخل مطعم هادئ، لكنه ترك وراءه أسئلة لم تنتهِ.</p></div></section>
+<section class="section chronicle"><div class="section-inner"><div class="kicker">THE CHAPTERS</div><h2 class="section-title">سجل الفصول</h2><div id="chaptersList"><div class="chapter-card"><div class="small">الفصل 01</div><h3>الفصل الأول</h3><p>يوم عادي ظاهريًا يبدأ بالتنمر، ويمر بالمطعم والصالة الرياضية، وينتهي بكتاب وهاتف ورسالة من لينا... ثم سؤال لا يستطيع تاي الهروب منه.</p><div class="chapter-actions"><a class="btn" href="mala_v2_chapter.html">قراءة الفصل</a></div></div></div></div></section>
+<section class="final"><div><div class="kicker">THE THOUGHT THAT REMAINS</div><h2>بعض الأشياء لا تنتهي<br>عندما نصمت عنها.</h2><p>بل تبدأ في رؤوسنا.</p><a class="btn" id="finalBtn" href="mala_v2_chapter.html">دخول السجل</a></div></section></main>
+<script type="module">
+import{db,getDoc,getDocs,doc,collection,where,query}from'./site.js';
+
+const cursor=document.querySelector('.mala-cursor');
+if(matchMedia('(pointer:fine)').matches&&cursor){
+  let x=0,y=0,raf=0;
+  addEventListener('pointermove',e=>{x=e.clientX;y=e.clientY;if(!raf)raf=requestAnimationFrame(()=>{cursor.style.left=x+'px';cursor.style.top=y+'px';raf=0})},{passive:true});
+  document.querySelectorAll('a,button').forEach(el=>{el.addEventListener('mouseenter',()=>cursor.classList.add('active'));el.addEventListener('mouseleave',()=>cursor.classList.remove('active'))});
+}else if(cursor)cursor.remove();
+
+function esc(v){return String(v??'').replace(/[&<>"']/g,m=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#039;'}[m]))}
+const list=document.getElementById('chaptersList');
+const startBtn=document.getElementById('startBtn');
+const finalBtn=document.getElementById('finalBtn');
+
+async function load(){
+  try{
+    const novels=await getDocs(collection(db,'novels'));
+    const novelDoc=novels.docs.find(d=>String(d.data().title||'').trim()==='ما لا ينتهي في رأسي');
+    if(!novelDoc) return;
+    const novelId=novelDoc.id;
+    document.title=novelDoc.data().title||'ما لا ينتهي في رأسي';
+    const snap=await getDocs(query(collection(db,'chapters'),where('novelId','==',novelId)));
+    const arr=snap.docs.map(d=>({id:d.id,...d.data()})).sort((a,b)=>{
+      const an=Number(a.number)||999999,bn=Number(b.number)||999999;
+      if(an!==bn)return an-bn;
+      return (a.createdAt?.seconds||0)-(b.createdAt?.seconds||0);
+    });
+    if(!arr.length){list.innerHTML='<p style="color:#aaa">لا توجد فصول بعد.</p>';return}
+    const firstUrl='mala_v2_chapter.html?id='+encodeURIComponent(arr[0].id);
+    startBtn.href=firstUrl;finalBtn.href=firstUrl;
+    list.innerHTML=arr.map((c,i)=>{
+      const n=Number(c.number)>0?Number(c.number):i+1;
+      const title=esc(c.title||('الفصل '+n));
+      return `<div class="chapter-card"><div class="small">الفصل ${String(n).padStart(2,'0')}</div><h3>${title}</h3><p>${i===0?'يوم عادي ظاهريًا يبدأ بالتنمر، ويمر بالمطعم والصالة الرياضية، وينتهي بكتاب وهاتف ورسالة من لينا... ثم سؤال لا يستطيع تاي الهروب منه.':'سجل جديد من حكاية تاي.'}</p><div class="chapter-actions"><a class="btn" href="mala_v2_chapter.html?id=${encodeURIComponent(c.id)}">قراءة الفصل</a></div></div>`;
+    }).join('');
+  }catch(e){
+    console.error('Mala chapters failed:',e);
+    list.innerHTML='<p style="color:#aaa">تعذر تحميل سجل الفصول. تأكد من اتصال Firebase.</p>';
+  }
+}
+load();
+</script></body></html>
