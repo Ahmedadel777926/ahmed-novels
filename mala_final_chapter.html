@@ -1,0 +1,49 @@
+<!DOCTYPE html><html lang="ar" dir="rtl"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1.0"><title>ما لا ينتهي في رأسي — الفصل</title><link rel="stylesheet" href="mala_final.css"><style>body{background:#090a0b;color:#e4e5e8}.read-nav{position:sticky;top:0;z-index:20;padding:18px 6vw;background:rgba(9,10,11,.90);backdrop-filter:blur(10px);border-bottom:1px solid rgba(255,255,255,.09);display:flex;justify-content:space-between}.read-nav a{color:#c4c6ca;text-decoration:none}.reading{width:min(920px,88vw);margin:auto;padding:90px 0}.head{text-align:center;padding-bottom:55px;border-bottom:1px solid rgba(255,255,255,.10)}.head .kicker{color:#8f9298}.head h1{font-size:clamp(42px,7vw,76px);font-weight:500;margin:15px 0;color:#e8e9ec}.head p{color:#898c92}.paper{margin-top:55px;background:#111315;border:1px solid rgba(255,255,255,.10);box-shadow:0 25px 70px rgba(0,0,0,.55);padding:clamp(28px,6vw,75px)}.paper p{font-size:20px;line-height:2.25;color:#bfc1c6;margin:0 0 30px;white-space:pre-wrap}.paper p.thought{font-size:24px;color:#d0d2d6;font-style:italic}.foot{display:flex;justify-content:space-between;margin-top:30px}.foot a{color:#aeb1b6;text-decoration:none}</style></head><body class="mala-world"><div class="mala-final-cursor"></div><nav class="read-nav"><a href="mala_final.html">← ما لا ينتهي في رأسي</a><span>السجل الأول</span></nav><main class="reading"><header class="head"><div class="kicker">THE FIRST RECORD</div><h1 id="title">الفصل الأول</h1><p id="label">الفصل الأول</p></header><article id="content" class="paper"><p>جارٍ تحميل الفصل...</p></article><footer class="foot"><a id="prev" href="mala_final.html">العودة للرواية</a><a id="next" href="mala_final.html">سجل الرواية</a></footer></main><script>(function(){const c=document.querySelector('.mala-final-cursor');if(!c)return;if(matchMedia('(pointer:fine)').matches){addEventListener('pointermove',e=>{c.style.left=e.clientX+'px';c.style.top=e.clientY+'px'},{passive:true})}else c.remove()})();</script><script type="module">
+import{db,getDoc,getDocs,doc,collection,where,query}from'./site.js';
+const params=new URLSearchParams(location.search),id=params.get('id');
+function esc(v){return String(v??'').replace(/[&<>"']/g,m=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#039;'}[m]))}
+function render(c){
+  const n=Number(c.number)>0?Number(c.number):1;
+  const label='الفصل '+n+(c.title&&c.title!=='الفصل '+n?': '+c.title:'');
+  document.getElementById('title').textContent=c.title||('الفصل '+n);
+  document.getElementById('label').textContent=label;
+  document.title='ما لا ينتهي في رأسي — '+label;
+  const ps=String(c.content||'').split(/\n{2,}/).map(x=>x.trim()).filter(Boolean);
+  document.getElementById('content').innerHTML=ps.length?ps.map(p=>`<p>${esc(p).replace(/\n/g,'<br>')}</p>`).join(''):'<p>لا يوجد نص لهذا الفصل.</p>';
+}
+async function load(){
+  try{
+    let c;
+    if(id){
+      const snap=await getDoc(doc(db,'chapters',id));
+      if(!snap.exists())throw new Error('الفصل غير موجود');
+      c={id:snap.id,...snap.data()};
+    }else{
+      const novels=await getDocs(collection(db,'novels'));
+      const novelDoc=novels.docs.find(d=>String(d.data().title||'').trim()==='ما لا ينتهي في رأسي');
+      if(!novelDoc)throw new Error('الرواية غير موجودة');
+      const snap=await getDocs(query(collection(db,'chapters'),where('novelId','==',novelDoc.id)));
+      const all=snap.docs.map(d=>({id:d.id,...d.data()})).sort((a,b)=>(Number(a.number)||999999)-(Number(b.number)||999999));
+      if(!all.length)throw new Error('لا توجد فصول');
+      c=all[0];
+    }
+    render(c);
+    if(c.novelId){
+      const all=(await getDocs(query(collection(db,'chapters'),where('novelId','==',c.novelId)))).docs.map(d=>({id:d.id,...d.data()}));
+      all.sort((a,b)=>(Number(a.number)||999999)-(Number(b.number)||999999));
+      const i=all.findIndex(x=>x.id===c.id),prev=all[i-1],next=all[i+1];
+      const prevEl=document.getElementById('prev'),nextEl=document.getElementById('next');
+      if(prev){prevEl.href='mala_final_chapter.html?id='+encodeURIComponent(prev.id);prevEl.textContent='الفصل '+(Number(prev.number)||i)+': '+(prev.title||'');}
+      else{prevEl.href='mala_final.html';prevEl.textContent='العودة للرواية';}
+      if(next){nextEl.href='mala_final_chapter.html?id='+encodeURIComponent(next.id);nextEl.textContent='الفصل '+(Number(next.number)||i+2)+': '+(next.title||'');}
+      else{nextEl.href='mala_final.html';nextEl.textContent='سجل الرواية';}
+    }
+  }catch(e){
+    console.error('Mala chapter failed:',e);
+    document.getElementById('title').textContent='تعذر تحميل الفصل';
+    document.getElementById('label').textContent='حدث خطأ أثناء القراءة';
+    document.getElementById('content').innerHTML='<p>تعذر تحميل الفصل. افتح صفحة الرواية ثم اختر الفصل من «سجل الفصول».</p>';
+  }
+}
+load();
+</script></body></html>

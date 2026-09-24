@@ -47,9 +47,9 @@ try {
   });
 
   // Keep the fifth novel completely independent from Firebase for its identity, cover, and page routing.
-  // Remove any Firebase copy of it to prevent an old record from opening Aurora.
+  // Remove any Firebase copy of it so the local novel page is always used.
   const filteredNovels = novels.filter(n => !/ما\s*لا\s*ينتهي\s*في\s*رأس[يى]/i.test(String(n.title||'')));
-  filteredNovels.push({id:'__mala_local_v2__',title:'ما لا ينتهي في رأسي',description:'تاي لا تنقصه القوة... لكنه اختار الصمت. وفي رأسه تبدأ معركته الخاصة لفهم مشاعره، واكتشاف سبب حاجته للاهتمام الذي لم يطلبه يومًا.',coverUrl:'images/mala-v2-cover.jpeg',createdAt:{seconds:0},localOnly:true});
+  filteredNovels.push({id:'__mala_local_v2__',title:'ما لا ينتهي في رأسي',description:'تاي لا تنقصه القوة... لكنه اختار الصمت. وفي رأسه تبدأ معركته الخاصة لفهم مشاعره، واكتشاف سبب حاجته للاهتمام الذي لم يطلبه يومًا.',coverUrl:'images/mala-final-cover.jpeg',createdAt:{seconds:0},localOnly:true});
   novels.length = 0;
   novels.push(...filteredNovels);
 
@@ -61,7 +61,7 @@ try {
       const card = document.createElement('div');
       const titleText = String(n.title || '');
       // Normalize Arabic text so small differences in spacing/diacritics do not
-      // accidentally send the new novel to the Aurora fallback page.
+      // accidentally send the new novel to the generic fallback page.
       const normalizedTitle = titleText
         .normalize('NFKD')
         .replace(/[\u064B-\u065F\u0670\u0640]/g, '')
@@ -72,15 +72,15 @@ try {
       const isDecision = /قرار\s*الذكريات/i.test(normalizedTitle);
       const isMala = /ما\s*لا\s*ينتهي\s*في\s*رأس[يى]/i.test(normalizedTitle)
         || (/لا\s*ينتهي/i.test(normalizedTitle) && /رأس[يى]/i.test(normalizedTitle));
-      const targetPage = isMala ? 'mala_v2.html' : (isDecision ? 'decision_memories.html' : (isNerval ? 'nerval.html' : (isAgentZero ? 'agent_zero.html' : 'aurora.html')));
-      const coverDefault = isMala ? 'images/mala-v2-cover.jpeg' : (isDecision ? 'images/decision-memory-cover.jpg' : (isAgentZero ? 'images/agent-zero-cover.jpg' : (isNerval ? 'images/nerval-cover.jpeg' : 'images/aurora.jpeg')));
-      const coverSrc = isMala ? 'images/mala-v2-cover.jpeg' : (n.coverUrl || coverDefault);
+      const targetPage = isMala ? 'mala_final.html' : (isDecision ? 'decision_memories.html' : (isNerval ? 'nerval.html' : (isAgentZero ? 'agent_zero.html' : 'aurora.html')));
+      const coverDefault = isMala ? 'images/mala-final-cover.jpeg' : (isDecision ? 'images/decision-memory-cover.jpg' : (isAgentZero ? 'images/agent-zero-cover.jpg' : (isNerval ? 'images/nerval-cover.jpeg' : 'images/aurora.jpeg')));
+      const coverSrc = isMala ? 'images/mala-final-cover.jpeg' : (n.coverUrl || coverDefault);
       card.className = 'card';
       card.innerHTML = `
         <img src="${esc(coverSrc)}" onerror="this.onerror=null;this.src='${coverDefault}'" alt="${esc(n.title || 'رواية')}">
         <h2>${esc(n.title || 'بدون اسم')}</h2>
         <p>${esc(n.description || '')}</p>
-        <a href="${isMala ? 'mala_v2.html' : targetPage + '?id=' + encodeURIComponent(n.id)}"><button>اقرأ الآن</button></a>
+        <a href="${isMala ? 'mala_final.html' : targetPage + '?id=' + encodeURIComponent(n.id)}"><button>اقرأ الآن</button></a>
       `;
       root.appendChild(card);
     }
@@ -89,10 +89,10 @@ try {
   console.error(e);
   root.innerHTML = `
     <div class="card">
-      <img src="images/mala-v2-cover.jpeg" alt="غلاف ما لا ينتهي في رأسي">
+      <img src="images/mala-final-cover.jpeg" alt="غلاف ما لا ينتهي في رأسي">
       <h2>ما لا ينتهي في رأسي</h2>
       <p>تاي لا تنقصه القوة... لكنه اختار الصمت. وفي رأسه تبدأ معركته الخاصة لفهم مشاعره.</p>
-      <a href="mala_v2.html"><button>اقرأ الآن</button></a>
+      <a href="mala_final.html"><button>اقرأ الآن</button></a>
     </div>`;
 }
 </script>
